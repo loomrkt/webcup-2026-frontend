@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/components/pageTransitions/TransitionLink";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -339,12 +339,12 @@ export function RegisterForm() {
 
       <p className="mt-6 text-center text-sm text-[var(--dg-text-muted)]">
         Déjà inscrit ?{" "}
-        <Link
+        <TransitionLink
           href="/login"
           className="rounded font-semibold text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
         >
           Se connecter
-        </Link>
+        </TransitionLink>
       </p>
     </AuthCard>
   );

@@ -3,6 +3,8 @@ import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/providers/session-provider";
+import { PageTransitionProvider } from "@/components/pageTransitions/PageTransitionProvider";
+import LoadingWrapper from "@/components/loaders/LoadingWrapper";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -24,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={cn("h-full", "antialiased", poppins.variable, "font-sans", geist.variable)}
     >
       <body className={`${poppins.className} min-h-full flex flex-col`}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <PageTransitionProvider>
+            <LoadingWrapper>{children}</LoadingWrapper>
+          </PageTransitionProvider>
+        </AuthProvider>
       </body>
     </html>
   );
