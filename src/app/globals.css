@@ -342,7 +342,6 @@
 }
 .dg-hero-line > span {
   display: block;
-  transform: translateY(110%);
   will-change: transform;
 }
 
