@@ -75,7 +75,11 @@ export default async function Layout({
           </header>
 
           {/* ───────── Cadre principal ───────── */}
-          <main className="relative flex-1 p-4 md:p-0">
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="relative flex-1 p-4 outline-none md:p-0"
+          >
             <HudPanel
               variant="frame"
               className="relative h-[calc(100vh-24px-32px-72px)] drop-shadow-[0_0_24px_var(--dg-accent-glow-soft)] lg:h-[calc(100vh-24px)]"

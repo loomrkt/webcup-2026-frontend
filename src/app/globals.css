@@ -405,7 +405,14 @@
   -moz-user-select: none;    /* anciens Firefox */
   -ms-user-select: none;     /* anciens IE/Edge */
   user-select: none;         /* standard */
-  cursor: none;
+}
+
+/* Curseur personnalisé : réservé aux appareils à pointeur fin (souris).
+   Les écrans tactiles et claviers gardent le comportement natif. */
+@media (pointer: fine) {
+  * {
+    cursor: none;
+  }
 }
 
 img, a {
@@ -413,17 +420,16 @@ img, a {
   user-drag: none;
 }
 
-/* ---------- HUD · géométrie des chanfreins (source unique) ---------- */
-
-/* Quatre niveaux partagés par tout l'app privé : cadres, panneaux,
-   boutons/tuiles/rangées et chips. Un seul réglage = harmonie partout. */
+/* ---------- HUD · géométrie (source unique) ----------
+   Seuls le cadre principal (hud-frame) et la bannière mobile (hud-banner)
+   conservent un clip-path. Tout le reste utilise des coins arrondis. */
 :root {
-  --hud-c: 36px; /* grand chanfrein — cadre principal */
-  --hud-s: 12px; /* petit chanfrein — cadre principal */
-  --hud-p: 18px; /* chanfrein moyen — panneaux / cartes */
+  --hud-c: 36px; /* grand rayon — cadre principal */
+  --hud-s: 12px; /* petit rayon — cadre principal */
+  --hud-p: 18px; /* rayon moyen — panneaux / cartes */
   --hud-ps: 7px;
-  --hud-x: 10px; /* chanfrein fin — boutons, tuiles, rangées */
-  --hud-xs: 6px; /* micro chanfrein — badges / chips */
+  --hud-x: 10px; /* rayon fin — boutons, tuiles, rangées */
+  --hud-xs: 6px; /* micro rayon — badges / chips */
 }
 
 @media (max-width: 1023px) {
@@ -451,39 +457,16 @@ img, a {
 }
 
 .hud-panel {
-  clip-path: polygon(
-    var(--hud-p) 0,
-    calc(100% - var(--hud-ps)) 0,
-    100% var(--hud-ps),
-    100% calc(100% - var(--hud-p)),
-    calc(100% - var(--hud-p)) 100%,
-    var(--hud-ps) 100%,
-    0 calc(100% - var(--hud-ps)),
-    0 var(--hud-p)
-  );
+  border-radius: var(--hud-p);
 }
 
 .hud-cut,
 .hud-btn {
-  clip-path: polygon(
-    var(--hud-x) 0,
-    100% 0,
-    100% calc(100% - var(--hud-x)),
-    calc(100% - var(--hud-x)) 100%,
-    0 100%,
-    0 var(--hud-x)
-  );
+  border-radius: var(--hud-x);
 }
 
 .hud-chip {
-  clip-path: polygon(
-    var(--hud-xs) 0,
-    100% 0,
-    100% calc(100% - var(--hud-xs)),
-    calc(100% - var(--hud-xs)) 100%,
-    0 100%,
-    0 var(--hud-xs)
-  );
+  border-radius: var(--hud-xs);
 }
 
 .hud-banner {
@@ -511,4 +494,178 @@ img, a {
   box-shadow: none;
   filter: none;
   opacity: 0.5;
+}
+
+/* ---------- Accessibilité · réglages utilisateur (F8) ----------
+   Les data-a11y-* sont posés sur <html> par le store d'accessibilité. */
+
+/* Taille de texte (F24) — scale rem de toute l'app, sans casser le layout */
+html[data-a11y-text-size="large"] {
+  font-size: 112.5%;
+}
+html[data-a11y-text-size="xlarge"] {
+  font-size: 125%;
+}
+
+/* Police lisible (F23) */
+html[data-a11y-readable-font] body,
+html[data-a11y-readable-font] body * {
+  font-family: Verdana, Tahoma, Arial, sans-serif !important;
+}
+
+/* Interligne (F23) */
+html[data-a11y-line-spacing="relaxed"] body {
+  line-height: 1.65;
+}
+html[data-a11y-line-spacing="wide"] body {
+  line-height: 1.9;
+}
+html[data-a11y-line-spacing="relaxed"] body p,
+html[data-a11y-line-spacing="relaxed"] body li,
+html[data-a11y-line-spacing="relaxed"] body h1,
+html[data-a11y-line-spacing="relaxed"] body h2,
+html[data-a11y-line-spacing="relaxed"] body h3 {
+  margin-block: 0.6em;
+}
+html[data-a11y-line-spacing="wide"] body p,
+html[data-a11y-line-spacing="wide"] body li,
+html[data-a11y-line-spacing="wide"] body h1,
+html[data-a11y-line-spacing="wide"] body h2,
+html[data-a11y-line-spacing="wide"] body h3 {
+  margin-block: 0.8em;
+}
+
+/* Contraste élevé (F23) — noir / blanc / jaune, override complet des tokens */
+html[data-a11y-high-contrast],
+html[data-a11y-color-scheme="high-contrast"] {
+  --dg-bg: #000000;
+  --dg-bg-raised: #0a0a0a;
+  --dg-bg-card: rgba(255, 255, 255, 0.08);
+  --dg-bg-card-hover: rgba(255, 255, 255, 0.14);
+  --dg-border: rgba(255, 255, 255, 0.55);
+  --dg-border-strong: rgba(255, 255, 255, 0.8);
+  --dg-text: #ffffff;
+  --dg-text-muted: #e6e6f0;
+  --dg-text-faint: #c4c4d4;
+
+  --dg-accent: #ffd60a;
+  --dg-accent-bright: #ffe14d;
+  --dg-accent-deep: #8a6d00;
+  --dg-accent-glow: rgba(255, 214, 10, 0.55);
+  --dg-accent-glow-soft: rgba(255, 214, 10, 0.3);
+  --dg-accent-glow-strong: rgba(255, 214, 10, 0.85);
+  --dg-accent-border: rgba(255, 225, 77, 0.7);
+
+  --dg-danger: #ff6b6b;
+  --dg-danger-soft: rgba(255, 107, 107, 0.2);
+  --dg-danger-border: rgba(255, 107, 107, 0.8);
+  --dg-success: #00e676;
+  --dg-success-glow: rgba(0, 230, 118, 0.6);
+  --dg-success-soft: rgba(0, 230, 118, 0.2);
+  --dg-success-border: rgba(0, 230, 118, 0.8);
+
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.55);
+  --input: rgba(255, 255, 255, 0.55);
+  --ring: #ffd60a;
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-accent: rgba(255, 255, 255, 0.14);
+  --sidebar-accent-foreground: #ffffff;
+}
+
+/* Schéma sombre (F43) — réutilise les tokens .dark existants */
+html[data-a11y-color-scheme="dark"] {
+  color-scheme: dark;
+}
+
+/* Daltonisme (F43) — simulation via filtres SVG (définis dans le layout) */
+html[data-a11y-color-blind="protanopia"] {
+  filter: url("#cb-protanopia");
+}
+html[data-a11y-color-blind="deuteranopia"] {
+  filter: url("#cb-deuteranopia");
+}
+html[data-a11y-color-blind="tritanopia"] {
+  filter: url("#cb-tritanopia");
+}
+
+/* Réduction des animations (D20 / F23) */
+html[data-a11y-reduced-motion] *,
+html[data-a11y-reduced-motion] *::before,
+html[data-a11y-reduced-motion] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---------- Navigation clavier (F41) · focus visible ----------
+   Filet de sécurité : tout élément interactif sans style de focus
+   propre (liens, cartes…) reçoit un outline visible au clavier. */
+:focus-visible {
+  outline: 2px solid var(--dg-accent);
+  outline-offset: 2px;
+}
+
+/* La sélection de texte reste possible dans les champs de formulaire
+   (copier une référence, corriger un email…). */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* ---------- Langage simple (F10) · glossaire ----------
+   Définition d'un terme : masquée par défaut, affichée au clic, ou
+   automatiquement quand le mode « langage simple » est actif. */
+.glossary-definition {
+  display: none;
+}
+.glossary-term[data-open="true"] .glossary-definition {
+  display: block;
+}
+html[data-a11y-plain-language] .glossary-definition {
+  display: block;
+}
+
+/* ---------- Zoom 200 % (F44) ----------
+   Les images ne peuvent pas faire déborder leur conteneur et le texte
+   long (références, emails) se replie au lieu d'être coupé. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+body {
+  overflow-wrap: break-word;
+}
+
+/* ---------- Mode léger / éco (F37) ----------
+   Allège le rendu pour les connexions lentes et appareils peu puissants :
+   décors, animations et flous d'arrière-plan coûteux sont neutralisés. */
+html[data-eco-mode] .dg-glow,
+html[data-eco-mode] .dg-grain::after,
+html[data-eco-mode] .dg-fade-bottom,
+html[data-eco-mode] [aria-hidden="true"] .absolute {
+  display: none !important;
+}
+html[data-eco-mode] *,
+html[data-eco-mode] *::before,
+html[data-eco-mode] *::after {
+  animation: none !important;
+  transition: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-eco-mode] img {
+  content-visibility: auto;
 }

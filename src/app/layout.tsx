@@ -3,6 +3,10 @@ import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/providers/session-provider";
+import QueryProvider from "@/providers/query-provider";
+import { AccessibilityProvider } from "@/features/accessibility/accessibility-provider";
+import { SkipLink } from "@/components/common/skip-link";
+import { FocusOnNavigation } from "@/components/common/focus-on-navigation";
 import { PageTransitionProvider } from "@/components/pageTransitions/PageTransitionProvider";
 import LoadingWrapper from "@/components/loaders/LoadingWrapper";
 import Cursor from "@/components/cursor";
@@ -28,15 +32,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={cn("h-full", "antialiased", poppins.variable, "font-sans", geist.variable)}
     >
       <body className={`${poppins.className} min-h-full flex flex-col`}>
+        <SkipLink />
         <AuthProvider>
-          <PageTransitionProvider>
-            <LoadingWrapper>
-              <TooltipProvider>
-                <Cursor />
-                {children}
-              </TooltipProvider>
-            </LoadingWrapper>
-          </PageTransitionProvider>
+          <QueryProvider>
+            <AccessibilityProvider>
+              <PageTransitionProvider>
+                <LoadingWrapper>
+                  <TooltipProvider>
+                    <Cursor />
+                    <FocusOnNavigation />
+                    {children}
+                  </TooltipProvider>
+                </LoadingWrapper>
+              </PageTransitionProvider>
+            </AccessibilityProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

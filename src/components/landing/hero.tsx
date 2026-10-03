@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import { onAppLoaded } from "@/helpers/loader-events";
 import TransitionLink from "@/components/pageTransitions/TransitionLink";
+import { useEcoStore } from "@/stores/eco-store";
 
 const HeroScene = dynamic(() => import("./hero-scene"), {
   ssr: false,
@@ -16,6 +17,7 @@ const HeroScene = dynamic(() => import("./hero-scene"), {
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
   const [ready, setReady] = useState(false);
+  const ecoMode = useEcoStore((s) => s.ecoMode);
 
   useEffect(() => {
     const unsubscribe = onAppLoaded(() => setReady(true));
@@ -59,7 +61,7 @@ export default function Hero() {
       />
 
       <div className="dg-fade-bottom absolute inset-0 z-0" aria-hidden="true">
-        <HeroScene />
+        {ecoMode ? null : <HeroScene />}
       </div>
 
       <div className="dg-container relative z-90 flex flex-1 flex-col items-center justify-center pb-40 pt-36 text-center">

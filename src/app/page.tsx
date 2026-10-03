@@ -14,7 +14,7 @@ export default function Home() {
       className="dg-landing relative min-h-svh overflow-x-clip font-sans"
     >
       <Nav />
-      <main>
+      <main id="main-content" tabIndex={-1} className="outline-none">
         <Hero />
         <LogoStrip />
         <Mission />

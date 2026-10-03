@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useRoleGuard } from "@/guards/role-guard";
-import { navItems } from "./nav-config";
+import { NAV_SECTIONS, navItems, type NavSection } from "./nav-config";
 import { useMemo } from "react";
 
 export function SidebarBrand() {
