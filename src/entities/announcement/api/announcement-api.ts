@@ -11,6 +11,16 @@ interface ApiEnvelope<T> {
 
 const unwrap = <T>(response: { data: ApiEnvelope<T> }): T => response.data.data;
 
+export const fetchPublicAnnouncements = async (): Promise<Announcement[]> =>
+  axiosCredential
+    .get<ApiEnvelope<Announcement[]>>("/announcements")
+    .then(unwrap);
+
+export const fetchAnnouncement = async (id: string): Promise<Announcement> =>
+  axiosCredential
+    .get<ApiEnvelope<Announcement>>(`/announcements/${id}`)
+    .then(unwrap);
+
 export const fetchAllAnnouncements = async (): Promise<Announcement[]> =>
   axiosCredential
     .get<ApiEnvelope<Announcement[]>>("/announcements/admin")

@@ -5,6 +5,8 @@ import {
   createAnnouncement,
   deleteAnnouncement,
   fetchAllAnnouncements,
+  fetchAnnouncement,
+  fetchPublicAnnouncements,
   updateAnnouncement,
 } from "./announcement-api";
 import type {
@@ -14,8 +16,25 @@ import type {
 
 export const announcementQueryKeys = {
   all: ["announcements"] as const,
+  public: ["announcements", "public"] as const,
+  detail: (id: string) => ["announcements", "detail", id] as const,
   admin: ["announcements", "admin"] as const,
 };
+
+export function usePublicAnnouncementsQuery() {
+  return useQuery({
+    queryKey: announcementQueryKeys.public,
+    queryFn: fetchPublicAnnouncements,
+  });
+}
+
+export function useAnnouncementQuery(id: string) {
+  return useQuery({
+    queryKey: announcementQueryKeys.detail(id),
+    queryFn: () => fetchAnnouncement(id),
+    enabled: !!id,
+  });
+}
 
 export function useAllAnnouncementsQuery() {
   return useQuery({

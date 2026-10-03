@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { AppSidebar, MobileSidebar } from "@/components/app-sidebar";
+import { BreadcrumbBar } from "@/components/ui/breadcrumb";
 import { HudPanel } from "@/components/ui/hud-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleGuardProvider } from "@/guards/role-guard";
@@ -78,6 +79,11 @@ export default async function Layout({
 
           {/* ───────── Bannières d'alertes actives ───────── */}
           <ActiveAlertBanners />
+
+          {/* ───────── Fil d'Ariane ───────── */}
+          <div className="relative z-10 px-4 py-3 lg:px-6">
+            <BreadcrumbBar />
+          </div>
 
           {/* ───────── Cadre principal ───────── */}
           <main className="relative flex-1 p-4 md:p-0">

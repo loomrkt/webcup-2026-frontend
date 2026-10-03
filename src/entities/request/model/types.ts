@@ -77,6 +77,20 @@ export interface PaginatedRequests {
   meta: PaginationMeta;
 }
 
+export interface PaginatedRequestHistory {
+  items: RequestHistory[];
+  meta: PaginationMeta;
+}
+
+export interface CreateRequestInput {
+  title: string;
+  description: string;
+  category?: string | null;
+  priority?: RequestPriority;
+  location?: string | null;
+  serviceId?: string | null;
+}
+
 export interface RequestListParams {
   status?: RequestStatus;
   priority?: RequestPriority;

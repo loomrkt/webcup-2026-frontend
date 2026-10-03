@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { LanguageSelector } from "@/features/language-selector";
 import { SidebarBrand, SidebarHelpCard, SidebarNav } from "./sidebar-sections";
 import { SidebarFooter } from "./sidebar-footer";
 import { HudMenuButton } from "./hud-menu-button";
@@ -24,6 +25,9 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </ScrollArea>
       <div className="flex flex-col gap-3 pb-3">
+        <div className="mx-3">
+          <LanguageSelector />
+        </div>
         <SidebarHelpCard />
         <SidebarFooter />
       </div>
