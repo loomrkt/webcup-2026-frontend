@@ -136,6 +136,7 @@
   --dg-bg: #07051a;
   --dg-bg-raised: #0d0a26;
   --dg-bg-card: rgba(255, 255, 255, 0.04);
+  --dg-bg-card-hover: rgba(255, 255, 255, 0.06);
   --dg-border: rgba(255, 255, 255, 0.1);
   --dg-border-strong: rgba(255, 255, 255, 0.18);
   --dg-text: #ffffff;
@@ -147,6 +148,9 @@
   --dg-accent-bright: #8b6cff;
   --dg-accent-deep: #3a1fb5;
   --dg-accent-glow: rgba(109, 74, 255, 0.5);
+  --dg-accent-glow-soft: rgba(109, 74, 255, 0.3);
+  --dg-accent-glow-strong: rgba(109, 74, 255, 0.8);
+  --dg-accent-border: rgba(139, 108, 255, 0.4);
 
   --dg-danger: #ff5c7a;
   --dg-danger-soft: rgba(255, 92, 122, 0.12);
@@ -165,6 +169,9 @@
   --dg-accent-bright: #ff7a3d;
   --dg-accent-deep: #b8260a;
   --dg-accent-glow: rgba(255, 90, 31, 0.45);
+  --dg-accent-glow-soft: rgba(255, 90, 31, 0.28);
+  --dg-accent-glow-strong: rgba(255, 90, 31, 0.75);
+  --dg-accent-border: rgba(255, 122, 61, 0.4);
 }
 
 [data-accent="crimson"] {
@@ -174,6 +181,9 @@
   --dg-accent-bright: #ff5c5c;
   --dg-accent-deep: #8f1018;
   --dg-accent-glow: rgba(255, 59, 59, 0.5);
+  --dg-accent-glow-soft: rgba(255, 59, 59, 0.3);
+  --dg-accent-glow-strong: rgba(255, 59, 59, 0.75);
+  --dg-accent-border: rgba(255, 92, 92, 0.4);
 }
 
 @keyframes dg-fade-up {
@@ -403,26 +413,77 @@ img, a {
   user-drag: none;
 }
 
-.hud-frame {
-  --c: 36px; /* grand chanfrein */
-  --s: 12px; /* petit chanfrein */
-  clip-path: polygon(
-    var(--c) 0,
-    calc(100% - var(--s)) 0,
-    100% var(--s),
-    100% calc(100% - var(--c)),
-    calc(100% - var(--c)) 100%,
-    var(--s) 100%,
-    0 calc(100% - var(--s)),
-    0 var(--c)
-  );
+/* ---------- HUD · géométrie des chanfreins (source unique) ---------- */
+
+/* Quatre niveaux partagés par tout l'app privé : cadres, panneaux,
+   boutons/tuiles/rangées et chips. Un seul réglage = harmonie partout. */
+:root {
+  --hud-c: 36px; /* grand chanfrein — cadre principal */
+  --hud-s: 12px; /* petit chanfrein — cadre principal */
+  --hud-p: 18px; /* chanfrein moyen — panneaux / cartes */
+  --hud-ps: 7px;
+  --hud-x: 10px; /* chanfrein fin — boutons, tuiles, rangées */
+  --hud-xs: 6px; /* micro chanfrein — badges / chips */
 }
 
 @media (max-width: 1023px) {
-  .hud-frame {
-    --c: 22px;
-    --s: 8px;
+  :root {
+    --hud-c: 22px;
+    --hud-s: 8px;
+    --hud-p: 12px;
+    --hud-ps: 5px;
+    --hud-x: 8px;
+    --hud-xs: 5px;
   }
+}
+
+.hud-frame {
+  clip-path: polygon(
+    var(--hud-c) 0,
+    calc(100% - var(--hud-s)) 0,
+    100% var(--hud-s),
+    100% calc(100% - var(--hud-c)),
+    calc(100% - var(--hud-c)) 100%,
+    var(--hud-s) 100%,
+    0 calc(100% - var(--hud-s)),
+    0 var(--hud-c)
+  );
+}
+
+.hud-panel {
+  clip-path: polygon(
+    var(--hud-p) 0,
+    calc(100% - var(--hud-ps)) 0,
+    100% var(--hud-ps),
+    100% calc(100% - var(--hud-p)),
+    calc(100% - var(--hud-p)) 100%,
+    var(--hud-ps) 100%,
+    0 calc(100% - var(--hud-ps)),
+    0 var(--hud-p)
+  );
+}
+
+.hud-cut,
+.hud-btn {
+  clip-path: polygon(
+    var(--hud-x) 0,
+    100% 0,
+    100% calc(100% - var(--hud-x)),
+    calc(100% - var(--hud-x)) 100%,
+    0 100%,
+    0 var(--hud-x)
+  );
+}
+
+.hud-chip {
+  clip-path: polygon(
+    var(--hud-xs) 0,
+    100% 0,
+    100% calc(100% - var(--hud-xs)),
+    calc(100% - var(--hud-xs)) 100%,
+    0 100%,
+    0 var(--hud-xs)
+  );
 }
 
 .hud-banner {
@@ -437,13 +498,17 @@ img, a {
   );
 }
 
-.hud-btn {
-  clip-path: polygon(
-    10px 0,
-    100% 0,
-    100% calc(100% - 10px),
-    calc(100% - 10px) 100%,
-    0 100%,
-    0 10px
-  );
+/* Bouton d'accent partagé (dégradé + lueur) */
+.dg-btn-accent {
+  background: linear-gradient(to bottom, var(--dg-accent-bright), var(--dg-accent));
+  color: #fff;
+  box-shadow: 0 0 20px var(--dg-accent-glow);
+}
+.dg-btn-accent:hover {
+  filter: brightness(1.1);
+}
+.dg-btn-accent:disabled {
+  box-shadow: none;
+  filter: none;
+  opacity: 0.5;
 }

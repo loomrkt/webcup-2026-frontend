@@ -13,7 +13,7 @@ export function SidebarBrand() {
   return (
     <div className="flex h-20 items-center gap-2.5 px-5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.png" alt="" className="h-8 w-auto drop-shadow-[0_0_12px_rgba(109,74,255,0.5)]" />
+      <img src="/logo.png" alt="" className="h-8 w-auto drop-shadow-[0_0_12px_var(--dg-accent-glow)]" />
       <div className="flex flex-col">
         <span className="bg-gradient-to-r from-white via-white to-[var(--dg-accent-bright)] bg-clip-text text-lg font-bold tracking-tight text-transparent">
           TERRA NOVA
@@ -50,13 +50,13 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
               "group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all duration-300",
               active
                 ? "text-white"
-                : "text-[var(--dg-text-muted)] hover:bg-white/[0.06] hover:text-white",
+                : "text-[var(--dg-text-muted)] hover:bg-[var(--dg-bg-card-hover)] hover:text-white",
             )}
           >
             {active ? (
               <>
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[rgba(109,74,255,0.28)] via-[rgba(109,74,255,0.12)] to-transparent" />
-                <span className="absolute inset-0 rounded-xl border border-[rgba(139,108,255,0.4)]" />
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--dg-accent)]/25 via-[var(--dg-accent)]/10 to-transparent" />
+                <span className="absolute inset-0 rounded-xl border border-[var(--dg-accent-border)]" />
                 <span className="absolute -left-px top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[var(--dg-accent-bright)] shadow-[0_0_12px_var(--dg-accent-glow)]" />
                 <span className="absolute inset-0 rounded-xl opacity-0 shadow-[0_0_24px_var(--dg-accent-glow)] transition-opacity duration-300 group-hover:opacity-100" />
               </>
@@ -107,7 +107,7 @@ function SidebarNavSkeleton() {
 
 export function SidebarHelpCard() {
   return (
-    <div className="relative mx-3 flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-[var(--dg-border)] bg-white/[0.04] p-4 backdrop-blur-md">
+    <div className="relative mx-3 flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] p-4 backdrop-blur-md">
       <span
         aria-hidden
         className="absolute -top-10 left-1/2 h-24 w-40 -translate-x-1/2 rounded-full bg-[var(--dg-accent)] opacity-25 blur-2xl"

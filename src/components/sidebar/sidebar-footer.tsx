@@ -26,7 +26,7 @@ export function SidebarFooter() {
 
   if (status === "loading") {
     return (
-      <div className="mx-3 flex items-center gap-3 rounded-2xl border border-[var(--dg-border)] bg-white/[0.04] px-4 py-4">
+      <div className="mx-3 flex items-center gap-3 rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] px-4 py-4">
         <Skeleton className="h-9 w-9 rounded-xl bg-white/10" />
         <div className="min-w-0 flex-1 space-y-1.5">
           <Skeleton className="h-3 w-24 bg-white/10" />
@@ -44,7 +44,7 @@ export function SidebarFooter() {
       : "Membre";
 
   return (
-    <div className="mx-3 flex items-center gap-3 rounded-2xl border border-[var(--dg-border)] bg-white/[0.04] px-4 py-4 backdrop-blur-md">
+    <div className="mx-3 flex items-center gap-3 rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] px-4 py-4 backdrop-blur-md">
       <div className="relative shrink-0">
         <span
           aria-hidden

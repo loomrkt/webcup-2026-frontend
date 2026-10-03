@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { AppSidebar, MobileSidebar } from "@/components/app-sidebar";
+import { HudPanel } from "@/components/ui/hud-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleGuardProvider } from "@/guards/role-guard";
 import { redirect } from "next/navigation";
@@ -27,7 +28,7 @@ export default async function Layout({
         <div className="relative flex min-h-screen flex-col lg:ml-[284px] lg:py-3 lg:pr-5">
           {/* ───────── Header mobile : bannière à gradin ───────── */}
           <header className="relative z-12 px-4 pt-4 lg:hidden">
-            <div className="relative h-14 drop-shadow-[0_0_16px_rgba(109,74,255,0.35)]">
+            <div className="relative h-14 drop-shadow-[0_0_16px_var(--dg-accent-glow-soft)]">
               {/* Couche bordure */}
               <div
                 aria-hidden
@@ -54,7 +55,7 @@ export default async function Layout({
                   <img
                     src="/logo.png"
                     alt=""
-                    className="h-6 w-auto drop-shadow-[0_0_10px_rgba(109,74,255,0.5)]"
+                    className="h-6 w-auto drop-shadow-[0_0_10px_var(--dg-accent-glow)]"
                   />
                   <span className="bg-gradient-to-r from-white to-[var(--dg-accent-bright)] bg-clip-text font-mono text-lg font-bold tracking-[0.2em] text-transparent uppercase">
                     Terra Nova
@@ -75,33 +76,14 @@ export default async function Layout({
 
           {/* ───────── Cadre principal ───────── */}
           <main className="relative flex-1 p-4 md:p-0">
-            <div className="relative h-[calc(100vh-24px-32px-72px)] drop-shadow-[0_0_24px_rgba(109,74,255,0.35)] lg:h-[calc(100vh-24px)]">
-              {/* Couche bordure */}
-              <div
-                aria-hidden
-                className="hud-frame absolute inset-0 bg-gradient-to-br from-[var(--dg-accent)] via-[var(--dg-border)] to-[var(--dg-accent)]/70"
-              />
-
-              {/* Couche contenu */}
-              <div className="hud-frame absolute inset-px overflow-hidden bg-[var(--dg-bg-raised)] backdrop-blur-xl">
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[var(--dg-accent)] to-transparent"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute top-[14px] left-[14px] h-2 w-2 rounded-full bg-[var(--dg-accent-bright)] shadow-[0_0_10px_var(--dg-accent)]"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute right-[14px] bottom-[14px] h-2 w-2 rounded-full bg-[var(--dg-accent-bright)] shadow-[0_0_10px_var(--dg-accent)]"
-                />
-
-                <div className="not-lg:mt-18 h-full overflow-y-auto">
-                  <TooltipProvider>{children}</TooltipProvider>
-                </div>
+            <HudPanel
+              variant="frame"
+              className="relative h-[calc(100vh-24px-32px-72px)] drop-shadow-[0_0_24px_var(--dg-accent-glow-soft)] lg:h-[calc(100vh-24px)]"
+            >
+              <div className="not-lg:mt-18 h-full overflow-y-auto">
+                <TooltipProvider>{children}</TooltipProvider>
               </div>
-            </div>
+            </HudPanel>
           </main>
         </div>
       </RoleGuardProvider>

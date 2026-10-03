@@ -10,7 +10,7 @@ export const HudMenuButton = React.forwardRef<
     type="button"
     aria-label="Ouvrir le menu"
     className={cn(
-      "group relative h-10 w-10 shrink-0 cursor-pointer drop-shadow-[0_0_8px_rgba(109,74,255,0.45)] transition-[filter] duration-300 hover:drop-shadow-[0_0_14px_rgba(109,74,255,0.8)] focus-visible:outline-none active:scale-95",
+      "group relative h-10 w-10 shrink-0 cursor-pointer drop-shadow-[0_0_8px_var(--dg-accent-glow)] transition-[filter] duration-300 hover:drop-shadow-[0_0_14px_var(--dg-accent-glow-strong)] focus-visible:outline-none active:scale-95",
       className,
     )}
     {...props}

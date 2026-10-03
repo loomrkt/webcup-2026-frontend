@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HudPanel } from "@/components/ui/hud-panel";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -56,27 +57,27 @@ const STATUS_META: Record<UserStatus, { label: string; className: string }> = {
   active: {
     label: "Actif",
     className:
-      "bg-[var(--dg-success)]/15 text-[var(--dg-success)] border border-[var(--dg-success-border)]",
+      "hud-chip bg-[var(--dg-success)]/15 text-[var(--dg-success)] border border-[var(--dg-success-border)]",
   },
   pending: {
     label: "En attente",
     className:
-      "bg-[var(--dg-text-muted)]/15 text-[var(--dg-text-muted)] border border-[var(--dg-border)]",
+      "hud-chip bg-[var(--dg-text-muted)]/15 text-[var(--dg-text-muted)] border border-[var(--dg-border)]",
   },
   suspended: {
     label: "Suspendu",
     className:
-      "bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
+      "hud-chip bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
   },
   locked: {
     label: "Verrouillé",
     className:
-      "bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
+      "hud-chip bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
   },
   deleted: {
     label: "Supprimé",
     className:
-      "bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
+      "hud-chip bg-[var(--dg-danger-soft)] text-[var(--dg-danger)] border border-[var(--dg-danger-border)]",
   },
 };
 
@@ -88,10 +89,10 @@ function roleBadge(roleName: string, isSuperAdmin: boolean) {
   return (
     <Badge
       className={cn(
-        "border",
+        "border hud-chip",
         isSuperAdmin
           ? "bg-[var(--dg-accent)]/15 text-[var(--dg-accent-bright)] border-[var(--dg-accent)]/40 shadow-[0_0_10px_var(--dg-accent-glow)]"
-          : "bg-white/[0.06] text-[var(--dg-text-muted)] border-[var(--dg-border-strong)]",
+          : "bg-[var(--dg-bg-card-hover)] text-[var(--dg-text-muted)] border-[var(--dg-border-strong)]",
       )}
     >
       {roleName.replaceAll("_", " ")}
@@ -124,7 +125,10 @@ function PageSkeleton() {
 
 function AccessDenied() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-[var(--dg-danger-border)] bg-[var(--dg-bg-raised)]/60 p-10">
+    <HudPanel
+      tone="danger"
+      className="flex flex-col items-center justify-center gap-4 p-10"
+    >
       <Shield className="h-12 w-12 text-[var(--dg-danger)]" />
       <h2 className="text-lg font-semibold text-[var(--dg-text)]">
         Accès refusé
@@ -133,7 +137,7 @@ function AccessDenied() {
         Cette section est réservée au super administrateur du Haut Conseil de
         Terra Nova.
       </p>
-    </div>
+    </HudPanel>
   );
 }
 
@@ -259,7 +263,7 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-raised)]/60 p-4 backdrop-blur-xl">
+      <HudPanel edge className="flex flex-col gap-4 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--dg-text-faint)]" />
@@ -273,7 +277,7 @@ export default function AdminUsersPage() {
           </div>
           <Button
             onClick={() => setShowCreate(true)}
-            className="bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] text-white shadow-[0_0_20px_var(--dg-accent-glow)] hover:brightness-110"
+            className="dg-btn-accent"
           >
             <UserPlus className="h-4 w-4" />
             Nouvel utilisateur
@@ -304,7 +308,7 @@ export default function AdminUsersPage() {
             {filteredUsers.map((user) => (
               <li
                 key={user.id}
-                className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--dg-border)] bg-white/[0.04] px-4 py-3 backdrop-blur transition-colors hover:border-[var(--dg-border-strong)] hover:bg-white/[0.06]"
+                className="hud-cut flex flex-wrap items-center gap-3 border border-[var(--dg-border)] bg-[var(--dg-bg-card)] px-4 py-3 backdrop-blur transition-colors hover:border-[var(--dg-border-strong)] hover:bg-[var(--dg-bg-card-hover)]"
               >
                 <Avatar className="h-9 w-9">
                   <AvatarImage src="" alt={user.email} />
@@ -346,7 +350,7 @@ export default function AdminUsersPage() {
             ))}
           </ul>
         )}
-      </div>
+      </HudPanel>
 
       {selectedUser && (
         <RoleAssignmentSheet
@@ -401,15 +405,15 @@ function StatCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-raised)]/60 p-4 backdrop-blur-xl">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[var(--dg-accent)]/15 text-[var(--dg-accent-bright)]">
+    <HudPanel className="flex items-center gap-3 p-4">
+      <span className="hud-cut flex size-9 shrink-0 items-center justify-center bg-[var(--dg-accent)]/15 text-[var(--dg-accent-bright)]">
         {icon}
       </span>
       <div>
         <p className="text-2xl font-bold text-[var(--dg-text)]">{value}</p>
         <p className="text-[11px] text-[var(--dg-text-faint)]">{label}</p>
       </div>
-    </div>
+    </HudPanel>
   );
 }
 
@@ -427,7 +431,7 @@ function RoleCheckboxRow({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--dg-border)] bg-white/[0.04] px-3 py-2.5 transition-colors hover:border-[var(--dg-border-strong)] hover:bg-white/[0.06]",
+        "hud-cut flex cursor-pointer items-center gap-3 border border-[var(--dg-border)] bg-[var(--dg-bg-card)] px-3 py-2.5 transition-colors hover:border-[var(--dg-border-strong)] hover:bg-[var(--dg-bg-card-hover)]",
         disabled && "cursor-not-allowed opacity-60",
       )}
     >
@@ -529,7 +533,7 @@ function RoleAssignmentSheet({
         </SheetHeader>
 
         <div className="flex flex-col gap-4 px-4">
-          <div className="rounded-xl border border-[var(--dg-border)] bg-white/[0.04] p-3">
+          <div className="hud-cut border border-[var(--dg-border)] bg-[var(--dg-bg-card)] p-3">
             <p className="text-xs font-medium uppercase tracking-wider text-[var(--dg-text-faint)]">
               Rôles actuels
             </p>
@@ -580,7 +584,7 @@ function RoleAssignmentSheet({
           <Button
             onClick={() => void submit()}
             disabled={submitting || selected.size === 0}
-            className="w-full bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] text-white shadow-[0_0_20px_var(--dg-accent-glow)] hover:brightness-110"
+            className="dg-btn-accent w-full"
           >
             {submitting
               ? "Attribution en cours…"
@@ -728,7 +732,7 @@ function CreateUserSheet({
           <Button
             onClick={() => void submit()}
             disabled={submitting}
-            className="w-full bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] text-white shadow-[0_0_20px_var(--dg-accent-glow)] hover:brightness-110"
+            className="dg-btn-accent w-full"
           >
             {submitting ? "Création en cours…" : "Créer l'utilisateur"}
           </Button>
