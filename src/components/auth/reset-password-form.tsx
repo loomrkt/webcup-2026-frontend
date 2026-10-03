@@ -5,16 +5,15 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   CircleAlert,
   Eye,
   EyeOff,
+  KeyRound,
   Loader2,
   Lock,
-  Mail,
-  Rocket,
-  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,25 +21,28 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { ErrorSummary, type FormError } from "@/components/auth/error-summary";
 import { PasswordChecklist } from "@/components/auth/password-checklist";
 import {
-  registerFormSchema,
-  type RegisterFormInput,
-} from "@/schemas/auth/register-schema";
-import { registerService } from "@/services/auth/register-service";
+  resetPasswordFormSchema,
+  resetPasswordPayloadSchema,
+  type ResetPasswordFormInput,
+} from "@/schemas/auth/reset-password-schema";
+import { resetPasswordService } from "@/services/auth/reset-password-service";
 import { getAuthErrorMessage } from "@/services/auth/types";
 import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
-export function RegisterForm() {
+export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
   const summaryRef = useRef<HTMLDivElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [success, setSuccess] = useState(false);
+  const invalidToken = !resetPasswordPayloadSchema.shape.token.safeParse(token)
+    .success;
 
-  const form = useForm<RegisterFormInput>({
-    resolver: zodResolver(registerFormSchema),
+  const form = useForm<ResetPasswordFormInput>({
+    resolver: zodResolver(resetPasswordFormSchema),
     mode: "onTouched",
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { password: "", confirmPassword: "" },
   });
 
   const {
@@ -61,29 +63,59 @@ export function RegisterForm() {
 
   useEffect(() => {
     if (!success) return;
-    const timer = setTimeout(() => router.push("/login?registered=1"), 1800);
+    const timer = setTimeout(() => router.push("/login?reset=1"), 1800);
     return () => clearTimeout(timer);
   }, [success, router]);
 
   const summaryErrors: FormError[] = (
-    Object.entries(errors) as [keyof RegisterFormInput, { message?: string }][]
+    Object.entries(errors) as [keyof ResetPasswordFormInput, { message?: string }][]
   )
     .filter(([, error]) => error?.message)
     .map(([field, error]) => ({ field, message: error.message as string }));
 
-  async function onSubmit(values: RegisterFormInput) {
+  async function onSubmit(values: ResetPasswordFormInput) {
     setServerError(null);
     setSubmitted(true);
 
     try {
-      await registerService({
-        email: values.email,
-        password: values.password,
-      });
+      await resetPasswordService({ token, password: values.password });
       setSuccess(true);
     } catch (error) {
-      setServerError(getAuthErrorMessage(error, "L'inscription a échoué. Réessayez."));
+      setServerError(
+        getAuthErrorMessage(
+          error,
+          "La réinitialisation a échoué. Réessayez.",
+        ),
+      );
     }
+  }
+
+  if (invalidToken) {
+    return (
+      <AuthCard>
+        <div className="flex flex-col items-center py-8 text-center">
+          <div className="mb-6 flex size-16 items-center justify-center rounded-full border border-[var(--dg-danger-border)] bg-[var(--dg-danger-soft)] shadow-[0_0_40px_var(--dg-danger)]/20">
+            <CircleAlert className="size-8 text-[var(--dg-danger)]" aria-hidden="true" />
+          </div>
+          <p className="text-sm font-semibold text-[var(--dg-accent)]">Lien invalide</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--dg-text)]">
+            Lien de réinitialisation invalide
+          </h1>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--dg-text-muted)]">
+            Ce lien est incomplet ou invalide. Demandez un nouveau lien de
+            réinitialisation.
+          </p>
+          <Button
+            type="button"
+            onClick={() => router.push("/forgot-password")}
+            className="mt-8 h-12 w-full cursor-pointer rounded-full border border-white/20 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] text-sm font-semibold text-white transition-all hover:shadow-[0_0_36px_var(--dg-accent-glow)] hover:brightness-110"
+          >
+            Demander un nouveau lien
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Button>
+        </div>
+      </AuthCard>
+    );
   }
 
   if (success) {
@@ -93,13 +125,12 @@ export function RegisterForm() {
           <div className="mb-6 flex size-16 items-center justify-center rounded-full border border-[var(--dg-success-border)] bg-[var(--dg-success-soft)] shadow-[0_0_40px_var(--dg-success-glow)]">
             <CheckCircle2 className="size-8 text-[var(--dg-success)]" aria-hidden="true" />
           </div>
-          <p className="text-sm font-semibold text-[var(--dg-accent)]">Presque terminé</p>
+          <p className="text-sm font-semibold text-[var(--dg-accent)]">Réussi</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--dg-text)]">
-            Compte créé
+            Mot de passe réinitialisé
           </h1>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--dg-text-muted)]">
-            Vérifiez votre boîte mail pour valider votre inscription.
-            Redirection vers la connexion…
+            Votre mot de passe a été mis à jour. Redirection vers la connexion…
           </p>
           <div className="mt-6 h-1 w-40 overflow-hidden rounded-full bg-white/10">
             <div className="h-full w-full rounded-full bg-[linear-gradient(90deg,var(--dg-accent),var(--dg-success),var(--dg-accent))] bg-[length:200%_100%] [animation:dg-progress_1.2s_ease-in-out_infinite]" />
@@ -113,14 +144,14 @@ export function RegisterForm() {
     <AuthCard>
       <div className="mb-8 text-center">
         <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-2xl border border-[var(--dg-accent)]/30 bg-[var(--dg-accent)]/10 shadow-[0_0_32px_var(--dg-accent-glow)]">
-          <Rocket className="size-7 text-[var(--dg-accent-bright)]" aria-hidden="true" />
+          <KeyRound className="size-7 text-[var(--dg-accent-bright)]" aria-hidden="true" />
         </div>
-        <p className="text-sm font-semibold text-[var(--dg-accent)]">Nouveau membre</p>
+        <p className="text-sm font-semibold text-[var(--dg-accent)]">Nouveau mot de passe</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--dg-text)]">
-          Rejoignez le réseau
+          Définissez un nouveau mot de passe
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-[var(--dg-text-muted)]">
-          Créez votre identité Loomrkt en quelques secondes.
+          Choisissez un mot de passe fort pour sécuriser votre compte.
         </p>
       </div>
 
@@ -143,33 +174,8 @@ export function RegisterForm() {
         className="space-y-5"
       >
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-[var(--dg-text-muted)]">
-            Email
-          </label>
-          <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--dg-text-faint)]" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="vous@exemple.com"
-              className={`pl-10 ${errors.email ? "border-[var(--dg-danger)]/60 focus:border-[var(--dg-danger)]/60 focus:ring-[var(--dg-danger)]/15" : ""}`}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? "email-error" : undefined}
-              {...register("email")}
-            />
-          </div>
-          {errors.email && (
-            <p id="email-error" className="flex items-center gap-1.5 text-xs text-[var(--dg-danger)]">
-              <CircleAlert className="size-3.5 shrink-0" aria-hidden="true" />
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-2">
           <label htmlFor="password" className="text-sm font-medium text-[var(--dg-text-muted)]">
-            Mot de passe
+            Nouveau mot de passe
           </label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--dg-text-faint)]" aria-hidden="true" />
@@ -210,7 +216,7 @@ export function RegisterForm() {
 
         <div className="space-y-2">
           <label htmlFor="confirmPassword" className="text-sm font-medium text-[var(--dg-text-muted)]">
-            Confirmer le mot de passe
+            Confirmer le nouveau mot de passe
           </label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--dg-text-faint)]" aria-hidden="true" />
@@ -243,11 +249,11 @@ export function RegisterForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              Création du compte…
+              Réinitialisation…
             </>
           ) : (
             <>
-              Créer mon compte
+              Réinitialiser le mot de passe
               <span className="ml-1 flex size-6 items-center justify-center rounded-full bg-white text-[var(--dg-accent)] transition-transform group-hover:translate-x-0.5">
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </span>
@@ -256,18 +262,13 @@ export function RegisterForm() {
         </Button>
       </form>
 
-      <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[var(--dg-text-faint)]">
-        <ShieldCheck className="size-4 text-[var(--dg-accent)]/80" aria-hidden="true" />
-        Chiffrement de bout en bout
-      </div>
-
       <p className="mt-6 text-center text-sm text-[var(--dg-text-muted)]">
-        Déjà inscrit ?{" "}
         <TransitionLink
           href="/login"
-          className="rounded font-semibold text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
+          className="inline-flex items-center gap-1.5 rounded font-semibold text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
         >
-          Se connecter
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Retour à la connexion
         </TransitionLink>
       </p>
     </AuthCard>

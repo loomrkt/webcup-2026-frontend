@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Link from "next/link";
-import TransitionLink from "@/components/pageTransitions/TransitionLink";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowRight,
+  CheckCircle2,
   CircleAlert,
   Eye,
   EyeOff,
@@ -14,98 +15,106 @@ import {
   Loader2,
   Lock,
   Mail,
+  Send,
 } from "lucide-react";
-import { isAxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthCard } from "@/components/auth/auth-card";
 import { ErrorSummary, type FormError } from "@/components/auth/error-summary";
-import { loginSchema } from "@/schemas/auth/login-schema";
+import { loginSchema, type LoginInput } from "@/schemas/auth/login-schema";
 import { loginService } from "@/services/auth/login-service";
+import { resendVerificationService } from "@/services/auth/verify-email-service";
+import { getAuthErrorMessage, isEmailNotVerifiedError } from "@/services/auth/types";
+import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
-type FieldErrors = Partial<Record<"email" | "password", string>>;
+type ServerError = {
+  message: string;
+  emailNotVerified: boolean;
+};
 
-function getServerError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message;
-    if (typeof message === "string" && message) return message;
-    if (Array.isArray(message) && message[0]) return String(message[0]);
-  }
-  return "Échec de la connexion. Vérifiez vos identifiants.";
-}
-
-export function LoginForm({ registered }: { registered?: boolean }) {
+export function LoginForm({
+  registered,
+  verified,
+  reset,
+}: {
+  registered?: boolean;
+  verified?: boolean;
+  reset?: boolean;
+}) {
   const router = useRouter();
   const summaryRef = useRef<HTMLDivElement>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [serverError, setServerError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<ServerError | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [resendState, setResendState] = useState<
+    "idle" | "sending" | "sent" | "error"
+  >("idle");
 
-  function validateField(field: "email" | "password", value: string) {
-    if (field === "email") {
-      if (!value.trim()) return "L'email est requis.";
-      if (!loginSchema.shape.email.safeParse(value).success)
-        return "Adresse email invalide.";
-    }
-    if (field === "password" && !value) return "Le mot de passe est requis.";
-    return undefined;
-  }
+  const form = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched",
+    defaultValues: { email: "", password: "" },
+  });
 
-  function validateAll(): FieldErrors {
-    return {
-      email: validateField("email", email),
-      password: validateField("password", password),
-    };
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    getValues,
+  } = form;
 
-  function clearFieldError(field: keyof FieldErrors) {
-    setFieldErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setServerError(null);
-
-    const errors = validateAll();
-    const summaryErrors: FormError[] = Object.entries(errors)
-      .filter(([, message]) => message)
-      .map(([field, message]) => ({ field, message: message as string }));
-
-    if (summaryErrors.length > 0) {
-      setFieldErrors(errors);
+  useEffect(() => {
+    if (!submitted) return;
+    if (Object.keys(errors).length > 0) {
       requestAnimationFrame(() => summaryRef.current?.focus());
+    }
+  }, [errors, submitted]);
+
+  const summaryErrors: FormError[] = (
+    Object.entries(errors) as [keyof LoginInput, { message?: string }][]
+  )
+    .filter(([, error]) => error?.message)
+    .map(([field, error]) => ({ field, message: error.message as string }));
+
+  async function onSubmit(values: LoginInput) {
+    setServerError(null);
+    setSubmitted(true);
+
+    const result = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      try {
+        await loginService(values);
+        setServerError({
+          message: "Identifiants invalides.",
+          emailNotVerified: false,
+        });
+      } catch (error) {
+        setServerError({
+          message: getAuthErrorMessage(error, "Identifiants invalides."),
+          emailNotVerified: isEmailNotVerifiedError(error),
+        });
+      }
       return;
     }
 
-    setIsLoading(true);
+    router.push(process.env.NEXT_PUBLIC_REDIRECT_URL ?? "/");
+    router.refresh();
+  }
 
+  async function handleResendVerification() {
+    const email = getValues("email");
+    if (!email) return;
+    setResendState("sending");
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        const serverMessage = await loginService({ email, password })
-          .then(() => null)
-          .catch(getServerError);
-        setServerError(serverMessage ?? "Identifiants invalides.");
-        return;
-      }
-
-      router.push(process.env.NEXT_PUBLIC_REDIRECT_URL ?? "/");
-      router.refresh();
-    } finally {
-      setIsLoading(false);
+      await resendVerificationService({ email });
+      setResendState("sent");
+    } catch {
+      setResendState("error");
     }
   }
 
@@ -125,30 +134,27 @@ export function LoginForm({ registered }: { registered?: boolean }) {
       </div>
 
       {registered && (
-        <div
-          className="mb-6 flex items-start gap-3 rounded-2xl border border-[var(--dg-success-border)] bg-[var(--dg-success-soft)] px-4 py-3 text-sm text-[var(--dg-success)]"
-          role="status"
-        >
-          <span
-            className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--dg-success)] shadow-[0_0_8px_var(--dg-success)]"
-            aria-hidden="true"
-          />
-          <p>
-            Compte créé avec succès. Vérifiez votre boîte mail pour valider
-            votre inscription, puis connectez-vous.
-          </p>
-        </div>
+        <SuccessBanner
+          title="Compte créé avec succès"
+          message="Vérifiez votre boîte mail pour valider votre inscription, puis connectez-vous."
+        />
       )}
 
-      <ErrorSummary
-        ref={summaryRef}
-        errors={Object.entries(fieldErrors)
-          .filter(([, message]) => message)
-          .map(([field, message]) => ({
-            field,
-            message: message as string,
-          }))}
-      />
+      {verified && (
+        <SuccessBanner
+          title="Email vérifié"
+          message="Votre adresse email est confirmée. Vous pouvez maintenant vous connecter."
+        />
+      )}
+
+      {reset && (
+        <SuccessBanner
+          title="Mot de passe réinitialisé"
+          message="Votre mot de passe a été mis à jour. Connectez-vous avec votre nouveau mot de passe."
+        />
+      )}
+
+      <ErrorSummary ref={summaryRef} errors={summaryErrors} />
 
       {serverError && (
         <div
@@ -156,11 +162,49 @@ export function LoginForm({ registered }: { registered?: boolean }) {
           role="alert"
         >
           <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <p>{serverError}</p>
+          <div className="space-y-3">
+            <p>{serverError.message}</p>
+            {serverError.emailNotVerified && resendState !== "sent" && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleResendVerification}
+                disabled={resendState === "sending"}
+                className="h-9 cursor-pointer rounded-full border-[var(--dg-accent)]/40 text-xs text-[var(--dg-accent)] hover:bg-[var(--dg-accent)]/10"
+              >
+                {resendState === "sending" ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+                    Envoi…
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-3.5" aria-hidden="true" />
+                    Renvoyer l&apos;email de vérification
+                  </>
+                )}
+              </Button>
+            )}
+            {serverError.emailNotVerified && resendState === "sent" && (
+              <p className="text-xs text-[var(--dg-success)]">
+                Email de vérification renvoyé. Vérifiez votre boîte mail.
+              </p>
+            )}
+            {resendState === "error" && (
+              <p className="text-xs">
+                Impossible de renvoyer l&apos;email pour le moment. Réessayez.
+              </p>
+            )}
+          </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate aria-busy={isLoading} className="space-y-5">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        aria-busy={isSubmitting}
+        className="space-y-5"
+      >
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm font-medium text-[var(--dg-text-muted)]">
             Email
@@ -169,32 +213,19 @@ export function LoginForm({ registered }: { registered?: boolean }) {
             <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--dg-text-faint)]" aria-hidden="true" />
             <Input
               id="email"
-              name="email"
               type="email"
               autoComplete="email"
               placeholder="vous@exemple.com"
-              className={`pl-10 ${fieldErrors.email ? "border-[var(--dg-danger)]/60 focus:border-[var(--dg-danger)]/60 focus:ring-[var(--dg-danger)]/15" : ""}`}
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                clearFieldError("email");
-              }}
-              onBlur={() => {
-                const message = validateField("email", email);
-                setFieldErrors((prev) => ({
-                  ...prev,
-                  email: message,
-                }));
-              }}
-              aria-invalid={Boolean(fieldErrors.email)}
-              aria-describedby={fieldErrors.email ? "email-error" : undefined}
-              required
+              className={`pl-10 ${errors.email ? "border-[var(--dg-danger)]/60 focus:border-[var(--dg-danger)]/60 focus:ring-[var(--dg-danger)]/15" : ""}`}
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              {...register("email")}
             />
           </div>
-          {fieldErrors.email && (
+          {errors.email && (
             <p id="email-error" className="flex items-center gap-1.5 text-xs text-[var(--dg-danger)]">
               <CircleAlert className="size-3.5 shrink-0" aria-hidden="true" />
-              {fieldErrors.email}
+              {errors.email.message}
             </p>
           )}
         </div>
@@ -204,37 +235,24 @@ export function LoginForm({ registered }: { registered?: boolean }) {
             <label htmlFor="password" className="text-sm font-medium text-[var(--dg-text-muted)]">
               Mot de passe
             </label>
-            <Link
+            <TransitionLink
               href="/forgot-password"
               className="rounded text-xs text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
             >
               Mot de passe oublié ?
-            </Link>
+            </TransitionLink>
           </div>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--dg-text-faint)]" aria-hidden="true" />
             <Input
               id="password"
-              name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="••••••••"
-              className={`pl-10 pr-11 ${fieldErrors.password ? "border-[var(--dg-danger)]/60 focus:border-[var(--dg-danger)]/60 focus:ring-[var(--dg-danger)]/15" : ""}`}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                clearFieldError("password");
-              }}
-              onBlur={() => {
-                const message = validateField("password", password);
-                setFieldErrors((prev) => ({
-                  ...prev,
-                  password: message,
-                }));
-              }}
-              aria-invalid={Boolean(fieldErrors.password)}
-              aria-describedby={fieldErrors.password ? "password-error" : undefined}
-              required
+              className={`pl-10 pr-11 ${errors.password ? "border-[var(--dg-danger)]/60 focus:border-[var(--dg-danger)]/60 focus:ring-[var(--dg-danger)]/15" : ""}`}
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? "password-error" : undefined}
+              {...register("password")}
             />
             <button
               type="button"
@@ -242,7 +260,7 @@ export function LoginForm({ registered }: { registered?: boolean }) {
                 showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
               }
               aria-pressed={showPassword}
-              onClick={() => setShowPassword((v) => !v)}
+              onClick={() => setShowPassword((value) => !value)}
               className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5 text-[var(--dg-text-faint)] transition-colors hover:text-[var(--dg-accent)] focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
             >
               {showPassword ? (
@@ -252,20 +270,20 @@ export function LoginForm({ registered }: { registered?: boolean }) {
               )}
             </button>
           </div>
-          {fieldErrors.password && (
+          {errors.password && (
             <p id="password-error" className="flex items-center gap-1.5 text-xs text-[var(--dg-danger)]">
               <CircleAlert className="size-3.5 shrink-0" aria-hidden="true" />
-              {fieldErrors.password}
+              {errors.password.message}
             </p>
           )}
         </div>
 
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isSubmitting}
           className="group h-12 w-full cursor-pointer rounded-full border border-white/20 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] text-sm font-semibold text-white transition-all hover:shadow-[0_0_36px_var(--dg-accent-glow)] hover:brightness-110 disabled:opacity-60"
         >
-          {isLoading ? (
+          {isSubmitting ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
               Vérification…
@@ -297,5 +315,20 @@ export function LoginForm({ registered }: { registered?: boolean }) {
         </TransitionLink>
       </p>
     </AuthCard>
+  );
+}
+
+function SuccessBanner({ title, message }: { title: string; message: string }) {
+  return (
+    <div
+      className="mb-6 flex items-start gap-3 rounded-2xl border border-[var(--dg-success-border)] bg-[var(--dg-success-soft)] px-4 py-3 text-sm text-[var(--dg-success)]"
+      role="status"
+    >
+      <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <div>
+        <p className="font-semibold">{title}</p>
+        <p className="mt-0.5 text-xs leading-relaxed opacity-90">{message}</p>
+      </div>
+    </div>
   );
 }

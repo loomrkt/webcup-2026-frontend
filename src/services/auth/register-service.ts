@@ -1,24 +1,13 @@
 ﻿import { axiosCredential } from "@/lib/axios";
 import type { RegisterInput } from "@/schemas/auth/register-schema";
-
-export interface RegisterApiResponse {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-  } | null;
-  code: string;
-  message: string;
-  meta: null;
-}
+import type { AuthApiEnvelope, RegisteredUser } from "./types";
 
 export const registerService = async (
-  data: RegisterInput
-): Promise<RegisterApiResponse> => {
-  const response = await axiosCredential.post<RegisterApiResponse>(
+  data: RegisterInput,
+): Promise<RegisteredUser> => {
+  const response = await axiosCredential.post<AuthApiEnvelope<RegisteredUser>>(
     "/auth/register",
-    { email: data.email, password: data.password }
+    { email: data.email, password: data.password },
   );
-
-  return response.data;
+  return response.data.data;
 };

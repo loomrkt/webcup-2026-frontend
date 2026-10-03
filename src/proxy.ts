@@ -6,7 +6,10 @@ export default auth((request) => {
   const isLoggedIn = !!request.auth?.user;
   const isAuthPage =
     nextUrl.pathname.startsWith("/login") ||
-    nextUrl.pathname.startsWith("/register");
+    nextUrl.pathname.startsWith("/register") ||
+    nextUrl.pathname.startsWith("/forgot-password") ||
+    nextUrl.pathname.startsWith("/reset-password") ||
+    nextUrl.pathname.startsWith("/verify-email");
   const isPublic =
     nextUrl.pathname === "/" ||
     isAuthPage ||
