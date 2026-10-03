@@ -1,9 +1,15 @@
 import type { ComponentType } from "react";
 import {
+  CalendarDays,
+  ChartNoAxesCombined,
+  Inbox,
   LayoutGrid,
+  Megaphone,
+  ScrollText,
+  ShieldCheck,
   UsersIcon,
 } from "lucide-react";
-import { ADMIN_ROLES } from "@/guards/roles";
+import { ADMIN_ROLES, ROLES } from "@/guards/roles";
 
 export type NavItem = {
   key: string;
@@ -25,6 +31,47 @@ export const navItems: NavItem[] = [
     label: "Tableau de bord",
     href: "/dashboard",
     icon: LayoutGrid,
+  },
+  {
+    key: "agent-requests",
+    label: "Demandes",
+    href: "/agent/requests",
+    icon: Inbox,
+    roles: [ROLES.AGENT_MUNICIPAL],
+  },
+  {
+    key: "agent-dashboard",
+    label: "Statistiques",
+    href: "/agent/dashboard",
+    icon: ChartNoAxesCombined,
+    roles: [ROLES.AGENT_MUNICIPAL],
+  },
+  {
+    key: "agent-communications",
+    label: "Alertes & annonces",
+    href: "/agent/communications",
+    icon: Megaphone,
+    roles: [ROLES.AGENT_MUNICIPAL],
+  },
+  {
+    key: "agent-audit",
+    label: "Journal d'audit",
+    href: "/agent/audit",
+    icon: ScrollText,
+    roles: [ROLES.AGENT_MUNICIPAL],
+    permissions: ["audit.read"],
+  },
+  {
+    key: "appointments",
+    label: "Rendez-vous",
+    href: "/appointments",
+    icon: CalendarDays,
+  },
+  {
+    key: "security",
+    label: "Sécurité",
+    href: "/security",
+    icon: ShieldCheck,
   },
   {
     key: "users",

@@ -39,7 +39,7 @@ const PageTransitionAnimation: React.FC = () => {
     const phase = pathname === targetPath ? "reveal" : "cover";
     const path = targetPath ?? pathname;
 
-    return renderTransition(path, phase, completeTransition);
+    return renderTransition(path ?? "/", phase, completeTransition);
 };
 
 export default PageTransitionAnimation;

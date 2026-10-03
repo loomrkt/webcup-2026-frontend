@@ -3,6 +3,8 @@ import { AppSidebar, MobileSidebar } from "@/components/app-sidebar";
 import { HudPanel } from "@/components/ui/hud-panel";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleGuardProvider } from "@/guards/role-guard";
+import { ActiveAlertBanners } from "@/widgets/active-alert-banners";
+import { NotificationCenter } from "@/widgets/notification-center";
 import { redirect } from "next/navigation";
 
 export default async function Layout({
@@ -74,6 +76,9 @@ export default async function Layout({
             </div>
           </header>
 
+          {/* ───────── Bannières d'alertes actives ───────── */}
+          <ActiveAlertBanners />
+
           {/* ───────── Cadre principal ───────── */}
           <main className="relative flex-1 p-4 md:p-0">
             <HudPanel
@@ -87,6 +92,9 @@ export default async function Layout({
           </main>
         </div>
       </RoleGuardProvider>
+
+      {/* ───────── Centre de notifications (cloche) ───────── */}
+      <NotificationCenter />
     </div>
   );
 }
