@@ -1,27 +1,23 @@
-import { Orbit } from "lucide-react";
-import { cn } from "@/lib/utils";
-
 interface LogoProps {
+  /** Taille de l'image en pixels ou valeur CSS (ex: 32, "2rem", "40px") */
+  size?: number | string;
   className?: string;
-  wordmark?: boolean;
 }
 
-export function Logo({ className, wordmark = true }: LogoProps) {
+export function Logo({ size = 32, className = "" }: LogoProps) {
+  const imageSize = typeof size === "number" ? `${size}px` : size;
+
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2.5",
-        className,
-      )}
-    >
-      <span className="grid size-9 place-items-center rounded-full bg-[var(--dg-accent)]/15 ring-1 ring-[var(--dg-accent)]/30">
-        <Orbit className="size-4 text-[var(--dg-accent-bright)]" />
+    <>
+      <img
+        src="/logo.png"
+        alt="Terra Nova"
+        className={`w-auto object-contain ${className}`}
+        style={{ height: imageSize }}
+      />
+      <span className="text-sm font-bold tracking-[0.18em] text-[var(--dg-text)]">
+        TERRA&nbsp;NOVA
       </span>
-      {wordmark && (
-        <span className="text-sm font-bold tracking-[0.18em] text-[var(--dg-text)]">
-          TERRA&nbsp;NOVA
-        </span>
-      )}
-    </span>
+    </>
   );
 }

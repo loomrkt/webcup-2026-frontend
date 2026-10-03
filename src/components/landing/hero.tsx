@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import { onAppLoaded } from "@/helpers/loader-events";
-import TextBlur from "@/components/animations/text/TextBlur";
 import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
 const HeroScene = dynamic(() => import("./hero-scene"), {
@@ -27,11 +26,19 @@ export default function Hero() {
     () => {
       if (!ready) return;
       if (prefersReducedMotion()) return;
-      gsap.fromTo(
-        ".hero-fade",
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.09, ease: "power3.out" }
-      );
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo(
+        ".dg-hero-line > span",
+        { yPercent: 115 },
+        { yPercent: 0, duration: 1.15, stagger: 0.12 },
+        0.15
+      )
+        .fromTo(
+          ".hero-fade",
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.8, stagger: 0.09 },
+          0.75
+        );
     },
     { dependencies: [ready], scope: root }
   );
@@ -55,22 +62,25 @@ export default function Hero() {
         <HeroScene />
       </div>
 
-      <div className="dg-container relative z-100 flex flex-1 flex-col items-center justify-center pb-40 pt-36 text-center">
-        <TextBlur
-          text="La première ville<br/><span class='dg-text-gradient'>d’un nouveau monde.</span>"
-          as="h1"
-          active={ready}
-          useScrollTrigger={false}
+      <div className="dg-container relative z-90 flex flex-1 flex-col items-center justify-center pb-40 pt-36 text-center">
+        <h1
           className={`${ready ? "" : "invisible"} text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[0.98] tracking-[-0.04em]`}
-        />
+        >
+          <span className="dg-hero-line">
+            <span>La première ville</span>
+          </span>
+          <span className="dg-hero-line">
+            <span className="dg-text-gradient">d’un nouveau monde.</span>
+          </span>
+        </h1>
 
-        <p className="hero-fade mx-auto mt-8 max-w-[560px] text-base leading-relaxed text-[var(--dg-text-muted)] md:text-lg">
+        <p className={`hero-fade ${ready ? "" : "invisible"} mx-auto mt-8 max-w-[560px] text-base leading-relaxed text-[var(--dg-text-muted)] md:text-lg`}>
           Après des décennies d’exploration, l’humanité a fondé sa première
           ville hors de la Terre. Le Haut Conseil vous confie une mission :
           construire sa plateforme numérique centrale.
         </p>
 
-        <div className="hero-fade mt-10 flex flex-col items-center gap-3 sm:flex-row">
+        <div className={`hero-fade ${ready ? "" : "invisible"} mt-10 flex flex-col items-center gap-3 sm:flex-row`}>
           <Link href="#mission" className="dg-btn-primary">
             Découvrir la mission
             <span className="grid size-6 place-items-center rounded-full bg-white/20">

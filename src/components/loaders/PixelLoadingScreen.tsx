@@ -58,7 +58,7 @@ const LoadingScreenPixel = ({ onComplete }: LoadingScreenPixelProps) => {
 
     return (
         <div
-            className="fixed inset-0 z-50"
+            className="fixed inset-0 z-[200]"
             style={{
                 display: "grid",
                 gridTemplateColumns: `repeat(auto-fill, ${cellSize}px)`,

@@ -10,6 +10,12 @@ const ACCENT_BRIGHT = "#c3b0ff";
 const PLANET = "#151233";
 const PLANET_EMISSIVE = "#2a1f6e";
 
+const CANVAS_GL = { antialias: true, alpha: true };
+const CANVAS_DPR = [1, 2];
+const CANVAS_CAMERA = { position: [0, 0, 6], fov: 42 };
+const ATMOSPHERE_COLOR = new THREE.Color(ACCENT);
+const ATMOSPHERE_UNIFORMS = { uColor: { value: ATMOSPHERE_COLOR } };
+
 const atmosphereVertex = /* glsl */ `
   varying vec3 vNormal;
   void main() {
@@ -96,7 +102,7 @@ function Planet() {
           side={THREE.BackSide}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
-          uniforms={{ uColor: { value: new THREE.Color(ACCENT) } }}
+          uniforms={ATMOSPHERE_UNIFORMS}
           vertexShader={atmosphereVertex}
           fragmentShader={atmosphereFragment}
         />
@@ -167,9 +173,9 @@ function SceneRig({ children }: { children: React.ReactNode }) {
 export default function HeroScene() {
   return (
     <Canvas
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true }}
-      camera={{ position: [0, 0, 6], fov: 42 }}
+      dpr={CANVAS_DPR}
+      gl={CANVAS_GL}
+      camera={CANVAS_CAMERA}
       style={{ pointerEvents: "none" }}
     >
       <ambientLight intensity={0.4} />

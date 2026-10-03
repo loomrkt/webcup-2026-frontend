@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import LoadingScreenSplit from "./LoadingScreenSplit";
 import LoadingScreenAreYouReady from "./LoadingScreenAreYouReady";
 import PixelLoadingScreen from "./PixelLoadingScreen";
 import LoadingSquareHole from "./LoadingSquareHole";
@@ -30,7 +29,7 @@ const renderLoader = (
         case "/strips":
             return <LoadingScreenStrips onComplete={onComplete} />;
         default:
-            return <LoadingScreenSplit onComplete={onComplete} />;
+            return <LoadingScreenAreYouReady onComplete={onComplete} />;
     }
 };
 

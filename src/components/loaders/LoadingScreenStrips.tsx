@@ -54,7 +54,7 @@ const LoadingScreenStrips = ({ onComplete }: LoadingScreenStripsProps) => {
     return (
         <div
             ref={root}
-            className="fixed inset-0 z-50 flex"
+            className="fixed inset-0 z-[200] flex"
             aria-hidden="true"
         >
             {Array.from({ length: stripCount }).map((_, index) => (

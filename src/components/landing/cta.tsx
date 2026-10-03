@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import TextLift from "@/components/animations/text/TextLift";
+import Reveal from "./reveal";
 import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
 export default function Cta() {
@@ -14,13 +14,13 @@ export default function Cta() {
         aria-hidden="true"
       />
       <div className="dg-container">
-        <div className="mx-auto max-w-[760px] text-center">
+        <Reveal className="mx-auto max-w-[760px] text-center">
           <p className="dg-eyebrow mb-4">Dans les prochaines 24 heures</p>
-          <TextLift
-            text="Terra Nova écrit son histoire.<br/><span class='dg-text-gradient'>Construisons son cœur numérique.</span>"
-            as="h2"
-            className="text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.02] tracking-[-0.03em]"
-          />
+          <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.02] tracking-[-0.03em]">
+            Terra Nova écrit son histoire.
+            <br />
+            <span className="dg-text-gradient">Construisons son cœur numérique.</span>
+          </h2>
           <p className="mx-auto mt-6 max-w-[46ch] leading-relaxed text-[var(--dg-text-muted)]">
             Rejoignez la mission confiée par le Haut Conseil. Découvrez les
             demandes des habitants, comprenez-les, transformez-les en
@@ -37,7 +37,7 @@ export default function Cta() {
               Découvrir les services
             </a>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

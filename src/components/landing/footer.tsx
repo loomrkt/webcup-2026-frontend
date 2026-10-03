@@ -19,16 +19,23 @@ const columns = [
       { label: "Créer un compte", href: "/register" },
     ],
   },
+  {
+    title: "Équipe",
+    links: [
+      { label: "Nameno - Frontend developer", href: "https://nameno.vercel.app/" },
+      { label: "Rino - Backend developer", href: "https://rins12.netlify.app/" },
+    ],
+  },
 ];
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden pt-28 md:pt-36">
       <div
-        className="absolute inset-x-0 bottom-0 -z-10 h-[70%]"
+        className="absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(90% 60% at 50% 100%, var(--dg-accent-glow), transparent 75%)",
+            "radial-gradient(130% 110% at 50% 115%, rgba(139,108,255,0.55) 0%, rgba(109,74,255,0.28) 35%, rgba(58,31,181,0.12) 55%, transparent 72%)",
         }}
         aria-hidden="true"
       />
@@ -36,7 +43,7 @@ export default function Footer() {
       <div className="dg-container relative">
         <div className="grid items-start gap-12 lg:grid-cols-[auto_1fr] lg:gap-24">
           <div>
-            <Logo />
+            <Logo size={46} />
             <p className="mt-5 max-w-[34ch] text-sm leading-relaxed text-[var(--dg-text-muted)]">
               La première ville d’un nouveau monde. Construite, habitée, et
               grandie par ses habitants.
@@ -44,34 +51,40 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-wrap gap-10 sm:gap-16">
-            {columns.map((col) => (
-              <div key={col.title}>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--dg-text-faint)]">
-                  {col.title}
-                </p>
-                <ul className="space-y-3">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      {l.href.startsWith("/") ? (
-                        <TransitionLink
-                          href={l.href}
-                          className="text-sm text-white/80 transition-colors hover:text-white"
-                        >
-                          {l.label}
-                        </TransitionLink>
-                      ) : (
-                        <Link
-                          href={l.href}
-                          className="text-sm text-white/80 transition-colors hover:text-white"
-                        >
-                          {l.label}
-                        </Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {columns.map((col) => {
+              const isEquipe = col.title.toLowerCase() === "équipe";
+
+              return (
+                <div key={col.title}>
+                  <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--dg-text-faint)]">
+                    {col.title}
+                  </p>
+                  <ul className="space-y-3">
+                    {col.links.map((l) => (
+                      <li key={l.label}>
+                        {l.href.startsWith("/") ? (
+                          <TransitionLink
+                            href={l.href}
+                            className="text-sm text-white/80 transition-colors hover:text-white"
+                          >
+                            {l.label}
+                          </TransitionLink>
+                        ) : (
+                          <Link
+                            href={l.href}
+                            target={isEquipe ? "_blank" : undefined}
+                            rel={isEquipe ? "noopener noreferrer" : undefined}
+                            className="text-sm text-white/80 transition-colors hover:text-white"
+                          >
+                            {l.label}
+                          </Link>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -62,7 +62,7 @@ const LoadingScreenStripsCenter = ({
     );
 
     return (
-        <div className="fixed inset-0 z-50 flex" aria-hidden="true">
+        <div className="fixed inset-0 z-[200] flex" aria-hidden="true">
             {Array.from({ length: stripCount }).map((_, index) => (
                 <div
                     key={index}

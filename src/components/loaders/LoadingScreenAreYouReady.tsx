@@ -83,7 +83,7 @@ const LoadingScreenAreYouReady = ({
     return (
         <div
             ref={panel}
-            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[200] flex items-center justify-center overflow-hidden"
             style={{ background: "var(--dg-bg)" }}
             aria-hidden="true"
         >

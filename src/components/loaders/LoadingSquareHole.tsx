@@ -64,7 +64,7 @@ const LoadingSquareHole = ({ onComplete }: LoadingSquareHoleProps) => {
     const skewAngle = (1 - progress) * 25;
 
     return (
-        <div className="fixed inset-0 z-50" aria-hidden="true">
+        <div className="fixed inset-0 z-[200]" aria-hidden="true">
             <svg
                 width="100%"
                 height="100%"

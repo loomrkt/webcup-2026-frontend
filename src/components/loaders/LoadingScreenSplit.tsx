@@ -64,7 +64,7 @@ const LoadingScreenSplit = ({ onComplete }: LoadingScreenSplitProps) => {
     return (
         <div
             ref={root}
-            className="fixed inset-0 z-50 flex overflow-hidden"
+            className="fixed inset-0 z-[200] flex overflow-hidden"
             style={{ background: "var(--dg-bg)" }}
             aria-hidden="true"
         >
