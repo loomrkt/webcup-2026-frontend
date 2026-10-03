@@ -388,3 +388,17 @@
     animation: none !important;
   }
 }
+
+
+* {
+  -webkit-user-select: none; /* Safari / iOS */
+  -moz-user-select: none;    /* anciens Firefox */
+  -ms-user-select: none;     /* anciens IE/Edge */
+  user-select: none;         /* standard */
+  cursor: none;
+}
+
+img, a {
+  -webkit-user-drag: none;
+  user-drag: none;
+}

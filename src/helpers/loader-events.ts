@@ -1,5 +1,7 @@
 export const LOADED_EVENT = "dg:loaded";
 
+export const LOADER_SHOWN_KEY = "dg:loader-shown";
+
 export const isAppLoaded = (): boolean =>
     typeof window !== "undefined" && window.__dgAppLoaded === true;
 

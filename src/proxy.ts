@@ -4,18 +4,18 @@ import { NextResponse } from "next/server";
 export default auth((request) => {
   const { nextUrl } = request;
   const isLoggedIn = !!request.auth?.user;
-  const isAuthPage =
+  const isAuthRedirectPage =
     nextUrl.pathname.startsWith("/login") ||
     nextUrl.pathname.startsWith("/register") ||
     nextUrl.pathname.startsWith("/forgot-password") ||
-    nextUrl.pathname.startsWith("/reset-password") ||
-    nextUrl.pathname.startsWith("/verify-email");
+    nextUrl.pathname.startsWith("/reset-password");
   const isPublic =
     nextUrl.pathname === "/" ||
-    isAuthPage ||
+    isAuthRedirectPage ||
+    nextUrl.pathname.startsWith("/verify-email") ||
     nextUrl.pathname.startsWith("/api");
 
-  if (isLoggedIn && isAuthPage) {
+  if (isLoggedIn && isAuthRedirectPage) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 

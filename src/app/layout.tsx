@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/providers/session-provider";
 import { PageTransitionProvider } from "@/components/pageTransitions/PageTransitionProvider";
 import LoadingWrapper from "@/components/loaders/LoadingWrapper";
+import Cursor from "@/components/cursor";
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -28,7 +30,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${poppins.className} min-h-full flex flex-col`}>
         <AuthProvider>
           <PageTransitionProvider>
-            <LoadingWrapper>{children}</LoadingWrapper>
+            <LoadingWrapper>
+              <TooltipProvider>
+                <Cursor />
+                {children}
+              </TooltipProvider>
+            </LoadingWrapper>
           </PageTransitionProvider>
         </AuthProvider>
       </body>

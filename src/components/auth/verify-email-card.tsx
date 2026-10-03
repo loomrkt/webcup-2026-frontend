@@ -60,7 +60,7 @@ export function VerifyEmailCard({ token }: { token: string }) {
 
   useEffect(() => {
     if (status !== "verified") return;
-    const timer = setTimeout(() => router.push("/login?verified=1"), 1800);
+    const timer = setTimeout(() => router.push("/login?verified=1"), 5000);
     return () => clearTimeout(timer);
   }, [status, router]);
 

@@ -1,17 +1,30 @@
 "use client";
 
+import { useEffect, useSyncExternalStore, useState } from "react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import LoadingScreenAreYouReady from "./LoadingScreenAreYouReady";
 import PixelLoadingScreen from "./PixelLoadingScreen";
 import LoadingSquareHole from "./LoadingSquareHole";
 import LoadingScreenStrips from "./LoadingScreenStrips";
 import LoadingScreenStripsCenter from "./loadingScreenStripsCenter";
-import { markAppLoaded } from "@/helpers/loader-events";
+import { LOADER_SHOWN_KEY, markAppLoaded } from "@/helpers/loader-events";
 
 interface LoadingWrapperProps {
     children: React.ReactNode;
 }
+
+const LOADER_SKIP_PATHS = ["/verify-email"];
+
+const noopSubscribe = (): (() => void) => () => {};
+
+const getLoaderAlreadyShown = (): boolean => {
+    if (typeof window === "undefined") return false;
+    try {
+        return window.sessionStorage.getItem(LOADER_SHOWN_KEY) === "1";
+    } catch {
+        return false;
+    }
+};
 
 const renderLoader = (
     path: string,
@@ -37,14 +50,31 @@ const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children }) => {
     const pathname = usePathname();
     const [initialPath] = useState(() => pathname);
     const [active, setActive] = useState(true);
+    const loaderAlreadyShown = useSyncExternalStore(
+        noopSubscribe,
+        getLoaderAlreadyShown,
+        () => false,
+    );
+    const skipLoader = loaderAlreadyShown || LOADER_SKIP_PATHS.includes(pathname);
 
-    if (!active) {
+    useEffect(() => {
+        if (skipLoader) {
+            markAppLoaded();
+        }
+    }, [skipLoader]);
+
+    if (skipLoader || !active) {
         return <>{children}</>;
     }
 
     return (
         <>
             {renderLoader(initialPath, () => {
+                try {
+                    window.sessionStorage.setItem(LOADER_SHOWN_KEY, "1");
+                } catch {
+                    // ignore
+                }
                 markAppLoaded();
                 setActive(false);
             })}
