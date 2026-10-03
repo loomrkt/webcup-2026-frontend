@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { AuthProvider } from "@/providers/session-provider";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -13,13 +17,15 @@ export const metadata: Metadata = {
   description: "Loomrkt - application",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${poppins.variable} h-full antialiased font-sans`}
+      className={cn("h-full", "antialiased", poppins.variable, "font-sans", geist.variable)}
     >
-      <body className={`${poppins.className} min-h-full flex flex-col`}>{children}</body>
+      <body className={`${poppins.className} min-h-full flex flex-col`}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
