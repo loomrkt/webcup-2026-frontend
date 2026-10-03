@@ -33,7 +33,7 @@ const TextMiddleOut: FC<TextMiddleOutProps> = ({
         () => {
             if (!textRef.current || prefersReducedMotion()) return;
 
-            const splitter = SplitText.create(textRef.current);
+            const splitter = SplitText.create(textRef.current, { type: "chars" });
 
             gsap.set(splitter.chars, {
                 yPercent: 130,

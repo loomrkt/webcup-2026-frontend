@@ -33,7 +33,7 @@ const TextBlur: FC<TextBlurProps> = ({
         () => {
             if (!textRef.current || prefersReducedMotion() || !active) return;
 
-            const splitter = SplitText.create(textRef.current);
+            const splitter = SplitText.create(textRef.current, { type: "chars" });
 
             gsap.fromTo(
                 splitter.chars,

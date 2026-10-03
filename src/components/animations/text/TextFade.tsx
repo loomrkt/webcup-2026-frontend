@@ -35,7 +35,9 @@ const TextFade: FC<TextFadeProps> = ({
         () => {
             if (!textRef.current || prefersReducedMotion()) return;
 
-            const splitter = SplitText.create(textRef.current);
+            const splitter = SplitText.create(textRef.current, {
+                type: single ? "chars" : "words",
+            });
             const splittedText = single ? splitter.chars : splitter.words;
 
             gsap.set(splittedText, {
