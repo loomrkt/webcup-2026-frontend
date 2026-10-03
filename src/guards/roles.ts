@@ -1,34 +1,23 @@
 export const ROLES = {
   ADMIN: "admin",
-  PRESIDENT: "president",
-  SECRETARY: "secretary",
-  MANAGER: "manager",
-  FEDERATION: "federation",
   AGENT_MUNICIPAL: "agent_municipal",
   CITIZEN: "citoyen",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES] | (string & {});
 
-export const CLUB_ROLES: Role[] = [
-  ROLES.ADMIN,
-  ROLES.PRESIDENT,
-  ROLES.SECRETARY,
-  ROLES.MANAGER,
-];
+export const ADMIN_ROLES: Role[] = [ROLES.ADMIN];
 
-export const FEDERATION_ROLES: Role[] = [
-  ROLES.ADMIN,
-  ROLES.FEDERATION,
-  ROLES.AGENT_MUNICIPAL,
-];
+export function isSuperAdmin(userRoles: string[]): boolean {
+  return userRoles.includes(ROLES.ADMIN);
+}
 
 export function canAccessRoles(
   userRoles: string[],
   required?: string[],
 ): boolean {
   if (!required || required.length === 0) return true;
-  if (userRoles.includes(ROLES.ADMIN)) return true;
+  if (isSuperAdmin(userRoles)) return true;
   return required.some((role) => userRoles.includes(role));
 }
 
@@ -46,6 +35,7 @@ export function canAccess(
   requiredRoles?: string[],
   requiredPermissions?: string[],
 ): boolean {
+  if (isSuperAdmin(userRoles)) return true;
   return (
     canAccessRoles(userRoles, requiredRoles) &&
     canAccessPermissions(userPermissions, requiredPermissions)

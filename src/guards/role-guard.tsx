@@ -16,6 +16,7 @@ import {
   canAccess as checkAccess,
   canAccessPermissions,
   canAccessRoles,
+  isSuperAdmin,
 } from "./roles";
 
 export interface RoleGuardValue {
@@ -72,8 +73,8 @@ export function RoleGuardProvider({ children }: PropsWithChildren) {
 
   const hasPermission = useCallback(
     (...required: string[]) =>
-      canAccessPermissions(permissions, required),
-    [permissions],
+      isSuperAdmin(roles) || canAccessPermissions(permissions, required),
+    [permissions, roles],
   );
 
   const canAccess = useCallback(

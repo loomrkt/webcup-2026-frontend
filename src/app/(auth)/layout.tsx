@@ -3,8 +3,8 @@ import { AuthBackground } from "@/components/auth/auth-background";
 import { BrandMark } from "@/components/auth/brand-mark";
 
 export const metadata: Metadata = {
-  title: "Authentification | Loomrkt",
-  description: "Accès sécurisé à la plateforme Loomrkt",
+  title: "Authentification | Terra Nova",
+  description: "Accès sécurisé à la plateforme Terra Nova",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

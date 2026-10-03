@@ -1,7 +1,7 @@
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 
 export const metadata = {
-  title: "Réinitialiser le mot de passe | Loomrkt",
+  title: "Réinitialiser le mot de passe | Terra Nova",
 };
 
 export default async function ResetPasswordPage({

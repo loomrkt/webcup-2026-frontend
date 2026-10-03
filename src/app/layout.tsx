@@ -17,8 +17,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Loomrkt - application",
-  description: "Loomrkt - application",
+  title: "Terra Nova - application",
+  description: "Plateforme numérique de la ville de Terra Nova",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

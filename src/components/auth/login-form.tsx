@@ -129,7 +129,7 @@ export function LoginForm({
           Content de vous revoir
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-[var(--dg-text-muted)]">
-          Connectez-vous pour retrouver votre espace Loomrkt.
+          Connectez-vous pour retrouver votre espace Terra Nova.
         </p>
       </div>
 

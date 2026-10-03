@@ -16,10 +16,10 @@ export function SidebarBrand() {
       <img src="/logo.png" alt="" className="h-8 w-auto drop-shadow-[0_0_12px_rgba(109,74,255,0.5)]" />
       <div className="flex flex-col">
         <span className="bg-gradient-to-r from-white via-white to-[var(--dg-accent-bright)] bg-clip-text text-lg font-bold tracking-tight text-transparent">
-          CLUB-Management
+          TERRA NOVA
         </span>
         <span className="text-[10px] font-medium tracking-[0.3em] text-[var(--dg-text-faint)] uppercase">
-          Console
+          Plateforme citoyenne
         </span>
       </div>
     </div>

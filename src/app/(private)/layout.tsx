@@ -33,7 +33,7 @@ export default async function Layout({
                 className="h-6 w-auto drop-shadow-[0_0_10px_rgba(109,74,255,0.5)]"
               />
               <span className="bg-gradient-to-r from-white to-[var(--dg-accent-bright)] bg-clip-text text-xl font-bold text-transparent">
-                CLUB-Management
+                TERRA NOVA
               </span>
             </div>
           </header>

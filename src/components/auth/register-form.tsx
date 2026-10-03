@@ -120,7 +120,7 @@ export function RegisterForm() {
           Rejoignez le réseau
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-[var(--dg-text-muted)]">
-          Créez votre identité Loomrkt en quelques secondes.
+          Créez votre identité citoyenne en quelques secondes.
         </p>
       </div>
 
