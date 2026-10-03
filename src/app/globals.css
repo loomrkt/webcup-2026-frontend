@@ -402,3 +402,48 @@ img, a {
   -webkit-user-drag: none;
   user-drag: none;
 }
+
+.hud-frame {
+  --c: 36px; /* grand chanfrein */
+  --s: 12px; /* petit chanfrein */
+  clip-path: polygon(
+    var(--c) 0,
+    calc(100% - var(--s)) 0,
+    100% var(--s),
+    100% calc(100% - var(--c)),
+    calc(100% - var(--c)) 100%,
+    var(--s) 100%,
+    0 calc(100% - var(--s)),
+    0 var(--c)
+  );
+}
+
+@media (max-width: 1023px) {
+  .hud-frame {
+    --c: 22px;
+    --s: 8px;
+  }
+}
+
+.hud-banner {
+  clip-path: polygon(
+    0 0,
+    calc(100% - 72px) 0,
+    calc(100% - 58px) 14px,
+    100% 14px,
+    100% 100%,
+    20px 100%,
+    0 calc(100% - 20px)
+  );
+}
+
+.hud-btn {
+  clip-path: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
+}

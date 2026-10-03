@@ -93,8 +93,6 @@ export type ValidationStatus = Status;
 
 export type PaymentStatus = "Payé" | "Non payé" | "PAID" | "UNPAID" | string;
 
-export type EntityType = "FEDERATION" | "LEAGUE" | "SECTION" | "CLUB";
-
 // Person fields repeated and shared by players, users and licenses
 export interface PersonSummary {
   fullName: FullName | null;
@@ -118,8 +116,6 @@ export interface StatusConfigOptions {
   config?: StatusConfig;
   fallback?: string;
 }
-
-export type OrganismType = "Club" | "Section" | "League" | "Federation";
 
 export type FileType = "image" | "document";
 

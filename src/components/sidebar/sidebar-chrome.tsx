@@ -12,6 +12,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarBrand, SidebarHelpCard, SidebarNav } from "./sidebar-sections";
 import { SidebarFooter } from "./sidebar-footer";
+import { HudMenuButton } from "./hud-menu-button";
 
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -56,13 +57,7 @@ export function MobileSidebar() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger>
-        <Button
-          variant="ghost"
-          className="z-15 cursor-pointer rounded-full border border-[var(--dg-border)] bg-white/[0.06] p-4 py-6 text-white backdrop-blur-md hover:bg-white/10 hover:text-white lg:hidden"
-          aria-label="Ouvrir le menu"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
+       <HudMenuButton />
       </SheetTrigger>
       <SheetContent
         showCloseButton={false}
