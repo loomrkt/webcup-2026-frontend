@@ -11,8 +11,8 @@ const PLANET = "#151233";
 const PLANET_EMISSIVE = "#2a1f6e";
 
 const CANVAS_GL = { antialias: true, alpha: true };
-const CANVAS_DPR = [1, 2];
-const CANVAS_CAMERA = { position: [0, 0, 6], fov: 42 };
+const CANVAS_DPR: [number, number] = [1, 2];
+const CANVAS_CAMERA = { position: [0, 0, 6] as [number, number, number], fov: 42 };
 const ATMOSPHERE_COLOR = new THREE.Color(ACCENT);
 const ATMOSPHERE_UNIFORMS = { uColor: { value: ATMOSPHERE_COLOR } };
 

@@ -102,7 +102,7 @@ export function LoginForm({
       return;
     }
 
-    router.push(process.env.NEXT_PUBLIC_REDIRECT_URL ?? "/");
+    router.push("/dashboard");
     router.refresh();
   }
 

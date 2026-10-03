@@ -16,7 +16,7 @@ export default auth((request) => {
     nextUrl.pathname.startsWith("/api");
 
   if (isLoggedIn && isAuthRedirectPage) {
-    return NextResponse.redirect(new URL("/", nextUrl));
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
   if (!isLoggedIn && !isPublic) {

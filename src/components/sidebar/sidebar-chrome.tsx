@@ -15,7 +15,7 @@ import { SidebarFooter } from "./sidebar-footer";
 
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <div className="z-10 flex h-full flex-col">
+    <div className="relative z-10 flex h-full flex-col">
       <SidebarBrand />
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-6 py-2">
@@ -30,11 +30,21 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/** Sidebar desktop — rail fixe, masqué sous le breakpoint lg. */
+/** Sidebar desktop — rail glassmorphe flottant, masqué sous le breakpoint lg. */
 export function AppSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[260px] shrink-0 border-r border-white/5 lg:block">
-      <SidebarContent />
+    <aside className="fixed inset-y-0 left-3 top-3 bottom-3 z-30 hidden w-[260px] shrink-0 lg:block">
+      <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--dg-border)] bg-[var(--dg-bg-raised)]/80 shadow-[0_8px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-24 left-1/2 h-48 w-56 -translate-x-1/2 rounded-full bg-[var(--dg-accent)] opacity-20 blur-3xl"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--dg-accent)]/60 to-transparent"
+        />
+        <SidebarContent />
+      </div>
     </aside>
   );
 }
@@ -48,7 +58,7 @@ export function MobileSidebar() {
       <SheetTrigger>
         <Button
           variant="ghost"
-          className="z-15 cursor-pointer rounded-full bg-primary p-4 py-6 text-white hover:bg-primary/90 hover:text-white lg:hidden"
+          className="z-15 cursor-pointer rounded-full border border-[var(--dg-border)] bg-white/[0.06] p-4 py-6 text-white backdrop-blur-md hover:bg-white/10 hover:text-white lg:hidden"
           aria-label="Ouvrir le menu"
         >
           <Menu className="h-5 w-5" />
@@ -57,10 +67,16 @@ export function MobileSidebar() {
       <SheetContent
         showCloseButton={false}
         side="left"
-        className="w-[280px] border-none bg-primary p-0 before:absolute before:inset-0 before:bg-[url(/pattern.png)] before:opacity-30 before:content-[''] not-lg:before:opacity-90"
+        className="w-[280px] border-none bg-[var(--dg-bg-raised)] p-0"
       >
         <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
-        <SidebarContent onNavigate={() => setOpen(false)} />
+        <div className="relative h-full overflow-hidden">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-24 left-1/2 h-48 w-56 -translate-x-1/2 rounded-full bg-[var(--dg-accent)] opacity-20 blur-3xl"
+          />
+          <SidebarContent onNavigate={() => setOpen(false)} />
+        </div>
       </SheetContent>
     </Sheet>
   );
