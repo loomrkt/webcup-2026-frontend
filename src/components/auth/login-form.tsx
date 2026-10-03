@@ -21,15 +21,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthCard } from "@/components/auth/auth-card";
 import { ErrorSummary, type FormError } from "@/components/auth/error-summary";
+import { TwoFactorStep } from "@/components/auth/two-factor-step";
 import { loginSchema, type LoginInput } from "@/schemas/auth/login-schema";
 import { loginService } from "@/services/auth/login-service";
 import { resendVerificationService } from "@/services/auth/verify-email-service";
-import { getAuthErrorMessage, isEmailNotVerifiedError } from "@/services/auth/types";
+import {
+  getAuthErrorMessage,
+  isEmailNotVerifiedError,
+  type LoginData,
+  type MfaFactor,
+} from "@/services/auth/types";
 import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
 type ServerError = {
   message: string;
   emailNotVerified: boolean;
+};
+
+type TwoFactorState = {
+  pendingToken: string;
+  factors: MfaFactor[];
 };
 
 export function LoginForm({
@@ -46,6 +57,7 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<ServerError | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [twoFactor, setTwoFactor] = useState<TwoFactorState | null>(null);
   const [resendState, setResendState] = useState<
     "idle" | "sending" | "sent" | "error"
   >("idle");
@@ -76,34 +88,47 @@ export function LoginForm({
     .filter(([, error]) => error?.message)
     .map(([field, error]) => ({ field, message: error.message as string }));
 
-  async function onSubmit(values: LoginInput) {
-    setServerError(null);
-    setSubmitted(true);
-
-    const result = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
+  async function establishSession(data: LoginData) {
+    const result = await signIn("token-session", {
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
       redirect: false,
     });
 
     if (result?.error) {
-      try {
-        await loginService(values);
-        setServerError({
-          message: "Identifiants invalides.",
-          emailNotVerified: false,
-        });
-      } catch (error) {
-        setServerError({
-          message: getAuthErrorMessage(error, "Identifiants invalides."),
-          emailNotVerified: isEmailNotVerifiedError(error),
-        });
-      }
+      setServerError({
+        message: "Impossible d'établir la session. Réessayez.",
+        emailNotVerified: false,
+      });
       return;
     }
 
     router.push("/dashboard");
     router.refresh();
+  }
+
+  async function onSubmit(values: LoginInput) {
+    setServerError(null);
+    setSubmitted(true);
+
+    try {
+      const data = await loginService(values);
+
+      if (data.requiresTwoFactor && data.pendingToken) {
+        setTwoFactor({
+          pendingToken: data.pendingToken,
+          factors: data.factors ?? [],
+        });
+        return;
+      }
+
+      await establishSession(data);
+    } catch (error) {
+      setServerError({
+        message: getAuthErrorMessage(error, "Identifiants invalides."),
+        emailNotVerified: isEmailNotVerifiedError(error),
+      });
+    }
   }
 
   async function handleResendVerification() {
@@ -120,6 +145,15 @@ export function LoginForm({
 
   return (
     <AuthCard>
+      {twoFactor ? (
+        <TwoFactorStep
+          pendingToken={twoFactor.pendingToken}
+          factors={twoFactor.factors}
+          onAuthenticated={(data) => void establishSession(data)}
+          onCancel={() => setTwoFactor(null)}
+        />
+      ) : (
+        <>
       <div className="mb-8 text-center">
         <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-2xl border border-[var(--dg-accent)]/30 bg-[var(--dg-accent)]/10 shadow-[0_0_32px_var(--dg-accent-glow)]">
           <Fingerprint className="size-7 text-[var(--dg-accent-bright)]" aria-hidden="true" />
@@ -299,7 +333,17 @@ export function LoginForm({
         </Button>
       </form>
 
-      <div className="mt-8 flex items-center gap-3 text-[11px] text-[var(--dg-text-faint)]">
+      <p className="mt-4 text-center text-sm text-[var(--dg-text-muted)]">
+        <TransitionLink
+          href="/login/passwordless"
+          className="inline-flex items-center gap-1.5 rounded font-medium text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
+        >
+          <Fingerprint className="size-4" aria-hidden="true" />
+          Connexion sans mot de passe
+        </TransitionLink>
+      </p>
+
+      <div className="mt-6 flex items-center gap-3 text-[11px] text-[var(--dg-text-faint)]">
         <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[var(--dg-border-strong)]" aria-hidden="true" />
         Protocole chiffré
         <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[var(--dg-border-strong)]" aria-hidden="true" />
@@ -314,6 +358,8 @@ export function LoginForm({
           Créer un compte
         </TransitionLink>
       </p>
+        </>
+      )}
     </AuthCard>
   );
 }

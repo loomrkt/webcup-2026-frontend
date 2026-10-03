@@ -16,6 +16,11 @@ interface AuthApiEnvelope {
   message: string;
 }
 
+interface MeEnvelope {
+  success: boolean;
+  data?: { id?: string; email?: string } | null;
+}
+
 function getJwtExpiryMs(jwt: string): number {
   try {
     const payload = JSON.parse(
@@ -93,6 +98,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: email ?? "",
           accessToken,
           refreshToken,
+        };
+      },
+    }),
+    Credentials({
+      id: "token-session",
+      name: "Token session",
+      credentials: {
+        accessToken: {},
+        refreshToken: {},
+      },
+      async authorize(credentials) {
+        const { accessToken, refreshToken } = credentials ?? {};
+        if (!accessToken || typeof accessToken !== "string") return null;
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/auth/me`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          },
+        );
+        if (!response.ok) return null;
+
+        const json: MeEnvelope = await response.json();
+        if (!json.success || !json.data) return null;
+
+        return {
+          id: json.data.id ?? "",
+          email: json.data.email ?? "",
+          accessToken,
+          refreshToken:
+            typeof refreshToken === "string" ? refreshToken : "",
         };
       },
     }),

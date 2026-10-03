@@ -10,6 +10,8 @@ export interface MeData {
   id: string;
   email: string;
   emailVerified: boolean;
+  totpActive: boolean;
+  mfaEmailActive: boolean;
   roles: MeRole[];
   permissions: string[];
 }

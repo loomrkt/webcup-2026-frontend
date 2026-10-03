@@ -33,6 +33,7 @@ import {
   getRoleErrorMessage,
 } from "@/services/rbac/users-service";
 import type { RbacUser, RoleEntity, UserStatus } from "@/services/rbac/types";
+import { AccountDetailSheet } from "./account-detail-sheet";
 
 type Feedback = { kind: "success" | "error"; message: string } | null;
 
@@ -150,6 +151,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [selectedUser, setSelectedUser] = useState<RbacUser | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
 
   const refresh = async () => {
@@ -346,6 +348,14 @@ export default function AdminUsersPage() {
                 >
                   Gérer les rôles
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedAccountId(user.id)}
+                  className="cursor-pointer border border-[var(--dg-border)] text-[var(--dg-text-muted)] hover:border-[var(--dg-accent)]/40 hover:text-[var(--dg-accent-bright)]"
+                >
+                  Compte
+                </Button>
               </li>
             ))}
           </ul>
@@ -371,6 +381,15 @@ export default function AdminUsersPage() {
           onError={(message) => {
             setFeedback({ kind: "error", message });
           }}
+        />
+      )}
+
+      {selectedAccountId && (
+        <AccountDetailSheet
+          userId={selectedAccountId}
+          onClose={() => setSelectedAccountId(null)}
+          onChanged={() => void refresh()}
+          onError={(message) => setFeedback({ kind: "error", message })}
         />
       )}
 

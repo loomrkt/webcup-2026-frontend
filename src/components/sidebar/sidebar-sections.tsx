@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguageStore } from "@/features/language-selector";
 import { cn } from "@/lib/utils";
 import { useRoleGuard } from "@/guards/role-guard";
 import { navItems } from "./nav-config";
@@ -29,6 +30,7 @@ export function SidebarBrand() {
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { isLoading, canAccess } = useRoleGuard();
+  const t = useLanguageStore((s) => s.t);
 
   const items = useMemo(
     () => navItems.filter((item) => canAccess(item.roles, item.permissions)),
@@ -40,7 +42,9 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav className="flex flex-col gap-1 px-3">
       {items.map((item) => {
-        const active = pathname?.startsWith(item.href);
+        const active = item.isActive
+          ? item.isActive(pathname ?? "")
+          : pathname?.startsWith(item.href);
         return (
           <Link
             key={item.key}
@@ -69,7 +73,9 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                   : "text-[var(--dg-text-faint)] group-hover:text-[var(--dg-accent-bright)]",
               )}
             />
-            <span className="relative z-10 truncate">{item.label}</span>
+            <span className="relative z-10 truncate">
+              {item.tKey ? t(item.tKey, item.label) : item.label}
+            </span>
             {item.badge ? (
               <Badge
                 className={cn(

@@ -3,6 +3,7 @@ import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/providers/session-provider";
+import QueryProvider from "@/providers/query-provider";
 import { PageTransitionProvider } from "@/components/pageTransitions/PageTransitionProvider";
 import LoadingWrapper from "@/components/loaders/LoadingWrapper";
 import Cursor from "@/components/cursor";
@@ -29,14 +30,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className={`${poppins.className} min-h-full flex flex-col`}>
         <AuthProvider>
-          <PageTransitionProvider>
-            <LoadingWrapper>
-              <TooltipProvider>
-                <Cursor />
-                {children}
-              </TooltipProvider>
-            </LoadingWrapper>
-          </PageTransitionProvider>
+          <QueryProvider>
+            <PageTransitionProvider>
+              <LoadingWrapper>
+                <TooltipProvider>
+                  <Cursor />
+                  {children}
+                </TooltipProvider>
+              </LoadingWrapper>
+            </PageTransitionProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

@@ -13,6 +13,8 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export type MfaFactor = "totp" | "email";
+
 export interface AuthSessionUser {
   id: string;
   email: string;
@@ -21,6 +23,7 @@ export interface AuthSessionUser {
 export interface LoginData extends AuthSessionUser, AuthTokens {
   requiresTwoFactor: boolean;
   pendingToken?: string;
+  factors?: MfaFactor[];
 }
 
 export interface RegisteredUser {
@@ -32,7 +35,12 @@ export function getAuthErrorMessage(error: unknown, fallback: string): string {
   if (isAxiosError(error)) {
     const data = error.response?.data as { message?: string | string[] } | undefined;
     const message = data?.message;
-    if (typeof message === "string" && message) return message;
+    if (typeof message === "string" && message) {
+      if (/locked|verrouill/i.test(message)) {
+        return "Compte temporairement verrouillé après des échecs de connexion. Réessayez dans quelques minutes.";
+      }
+      return message;
+    }
     if (Array.isArray(message) && message[0]) return String(message[0]);
     if (error.response?.status === 429)
       return "Trop de tentatives. Réessayez dans quelques minutes.";

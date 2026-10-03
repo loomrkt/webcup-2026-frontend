@@ -55,7 +55,9 @@ const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children }) => {
         getLoaderAlreadyShown,
         () => false,
     );
-    const skipLoader = loaderAlreadyShown || LOADER_SKIP_PATHS.includes(pathname);
+    const skipLoader =
+        loaderAlreadyShown ||
+        (pathname !== null && LOADER_SKIP_PATHS.includes(pathname));
 
     useEffect(() => {
         if (skipLoader) {
@@ -69,7 +71,7 @@ const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children }) => {
 
     return (
         <>
-            {renderLoader(initialPath, () => {
+            {renderLoader(initialPath ?? "/", () => {
                 try {
                     window.sessionStorage.setItem(LOADER_SHOWN_KEY, "1");
                 } catch {
