@@ -35,7 +35,7 @@ type Status = "verifying" | "verified" | "error";
 export function VerifyEmailCard({ token }: { token: string }) {
   const router = useRouter();
   const summaryRef = useRef<HTMLDivElement>(null);
-  const statusRef = useRef<Status>("verifying");
+  const verifyStartedRef = useRef(false);
   const [status, setStatus] = useState<Status>("verifying");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [resendStatus, setResendStatus] = useState<
@@ -55,21 +55,19 @@ export function VerifyEmailCard({ token }: { token: string }) {
   } = resendForm;
 
   function updateStatus(next: Status) {
-    statusRef.current = next;
     setStatus(next);
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (statusRef.current === "verified") {
-        router.push("/login?verified=1");
-      }
-    }, 1800);
+    if (status !== "verified") return;
+    const timer = setTimeout(() => router.push("/login?verified=1"), 1800);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [status, router]);
 
   useEffect(() => {
-    let cancelled = false;
+    if (verifyStartedRef.current) return;
+    verifyStartedRef.current = true;
+
     const isValid = emailVerificationTokenSchema.safeParse(token).success;
     const task = isValid
       ? verifyEmailService({ token })
@@ -77,11 +75,9 @@ export function VerifyEmailCard({ token }: { token: string }) {
 
     task
       .then(() => {
-        if (cancelled) return;
         updateStatus("verified");
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
         updateStatus("error");
         setErrorMessage(
           isValid
@@ -92,10 +88,6 @@ export function VerifyEmailCard({ token }: { token: string }) {
             : "Ce lien de vérification est invalide ou incomplet. Demandez un nouveau lien.",
         );
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, [token]);
 
   const summaryErrors: FormError[] = (
