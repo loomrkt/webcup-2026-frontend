@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   RefreshCw,
 } from "lucide-react";
+import TextFade from "@/components/animations/text/TextFade";
 import Reveal from "./reveal";
 
 const services = [
@@ -57,12 +58,14 @@ export default function Services() {
   return (
     <section id="services" className="relative py-28 md:py-36">
       <div className="dg-container">
-        <Reveal className="mx-auto max-w-[720px] text-center">
+        <div className="mx-auto max-w-[720px] text-center">
           <p className="dg-eyebrow mb-4">Services de la ville</p>
-          <h2 className="text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.02em]">
-            Tout ce dont une jeune ville a besoin.
-          </h2>
-        </Reveal>
+          <TextFade
+            text="Tout ce dont une jeune ville a besoin."
+            as="h2"
+            className="text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.02em]"
+          />
+        </div>
 
         <div className="mt-16 grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
           {services.map(({ index, icon: Icon, title, description }, i) => (

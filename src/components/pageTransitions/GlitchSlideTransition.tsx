@@ -1,45 +1,62 @@
-import React from "react";
-import { motion, Variants } from "framer-motion";
+"use client";
 
-interface BounceTransitionProps {
-    className?: string;
-}
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
+import { PageTransitionProps } from "./types";
 
-const bounceVariants: Variants = {
-    initial: {
-        scale: 0,
-        opacity: 0,
-        backgroundColor: "#ff007a",
-        transition: { duration: 0.7, ease: "easeInOut" },
-    },
-    animate: {
-        scale: 1,
-        opacity: 1,
-        backgroundColor: "#00c6ff",
-        transition: {
-            duration: 0.7,
-            ease: [0.68, -0.55, 0.27, 1.55], // easing for bounce effect
-        },
-    },
-    exit: {
-        scale: 0,
-        opacity: 0,
-        transition: { duration: 0.7, ease: "easeIn" },
-    },
-};
-
-const BounceTransition: React.FC<BounceTransitionProps> = ({
-    className = "fixed inset-0 z-50",
+const GlitchSlideTransition: React.FC<PageTransitionProps> = ({
+    phase,
+    onComplete,
 }) => {
+    const slide = useRef<HTMLDivElement | null>(null);
+
+    useGSAP(
+        () => {
+            if (!slide.current) return;
+
+            if (prefersReducedMotion()) {
+                if (phase === "reveal") onComplete?.();
+                return;
+            }
+
+            const tl = gsap.timeline();
+
+            if (phase === "cover") {
+                tl.to(slide.current, {
+                    y: 0,
+                    duration: 0.7,
+                    ease: "back.out(1.6)",
+                });
+            } else {
+                tl.to(slide.current, {
+                    y: "-100%",
+                    duration: 0.7,
+                    ease: "power3.in",
+                    onComplete: () => onComplete?.(),
+                });
+            }
+
+            return () => {
+                tl.kill();
+            };
+        },
+        { dependencies: [phase] },
+    );
+
     return (
-        <motion.div
-            className={className}
-            variants={bounceVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-        />
+        <div className="fixed inset-0 z-[100] overflow-hidden">
+            <div
+                ref={slide}
+                className="absolute inset-x-0 top-0 h-full"
+                style={{
+                    background:
+                        "linear-gradient(180deg, var(--dg-accent-bright), var(--dg-accent-deep))",
+                    transform: "translateY(-100%)",
+                }}
+            />
+        </div>
     );
 };
 
-export default BounceTransition;
+export default GlitchSlideTransition;

@@ -1,10 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowRight, ArrowDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
+import { onAppLoaded } from "@/helpers/loader-events";
+import TextBlur from "@/components/animations/text/TextBlur";
+import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
 const HeroScene = dynamic(() => import("./hero-scene"), {
   ssr: false,
@@ -13,25 +16,24 @@ const HeroScene = dynamic(() => import("./hero-scene"), {
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAppLoaded(() => setReady(true));
+    return unsubscribe;
+  }, []);
 
   useGSAP(
     () => {
+      if (!ready) return;
       if (prefersReducedMotion()) return;
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.fromTo(
-        ".dg-hero-line > span",
-        { yPercent: 115 },
-        { yPercent: 0, duration: 1.15, stagger: 0.12 },
-        0.15
-      )
-        .fromTo(
-          ".hero-fade",
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.8, stagger: 0.09 },
-          0.75
-        );
+      gsap.fromTo(
+        ".hero-fade",
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.09, ease: "power3.out" }
+      );
     },
-    { scope: root }
+    { dependencies: [ready], scope: root }
   );
 
   return (
@@ -54,14 +56,13 @@ export default function Hero() {
       </div>
 
       <div className="dg-container relative z-100 flex flex-1 flex-col items-center justify-center pb-40 pt-36 text-center">
-        <h1 className="text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[0.98] tracking-[-0.04em]">
-          <span className="dg-hero-line">
-            <span>La première ville</span>
-          </span>
-          <span className="dg-hero-line">
-            <span className="dg-text-gradient">d’un nouveau monde.</span>
-          </span>
-        </h1>
+        <TextBlur
+          text="La première ville<br/><span class='dg-text-gradient'>d’un nouveau monde.</span>"
+          as="h1"
+          active={ready}
+          useScrollTrigger={false}
+          className={`${ready ? "" : "invisible"} text-[clamp(3rem,8vw,6.5rem)] font-bold leading-[0.98] tracking-[-0.04em]`}
+        />
 
         <p className="hero-fade mx-auto mt-8 max-w-[560px] text-base leading-relaxed text-[var(--dg-text-muted)] md:text-lg">
           Après des décennies d’exploration, l’humanité a fondé sa première
@@ -76,9 +77,9 @@ export default function Hero() {
               <ArrowRight className="size-3.5" />
             </span>
           </Link>
-          <Link href="/login" className="dg-btn-ghost">
+          <TransitionLink href="/login" className="dg-btn-ghost">
             Accéder à la plateforme
-          </Link>
+          </TransitionLink>
         </div>
       </div>
     </section>

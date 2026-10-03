@@ -1,103 +1,98 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
 
 interface LoadingSquareHoleProps {
     onComplete: () => void;
 }
 
 const LoadingSquareHole = ({ onComplete }: LoadingSquareHoleProps) => {
-    const [isVisible, setIsVisible] = useState(true);
     const [progress, setProgress] = useState(0);
+    const [viewport, setViewport] = useState<{ width: number; height: number }>({
+        width: 0,
+        height: 0,
+    });
+    const finished = useRef(false);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            const start = performance.now();
-
-            const animate = (time: number) => {
-                const elapsed = (time - start) / 1000; // 2 seconds
-                const rawProgress = Math.min(elapsed, 1);
-                // Apply sine-based easing to slow down around 0.5
-                const easedProgress =
-                    Math.sin(rawProgress * Math.PI * 0.5) ** 2; // Slows down near middle
-                setProgress(easedProgress);
-
-                if (rawProgress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    setTimeout(() => {
-                        setIsVisible(false);
-                        onComplete();
-                    }, 300);
-                }
+    useGSAP(
+        () => {
+            const finish = () => {
+                if (finished.current) return;
+                finished.current = true;
+                onComplete();
             };
 
-            requestAnimationFrame(animate);
-        }, 300);
+            if (prefersReducedMotion()) {
+                setProgress(1);
+                finish();
+                return;
+            }
 
-        return () => clearTimeout(timeout);
-    }, [onComplete()]);
+            const state = { value: 0 };
+            const tl = gsap.to(state, {
+                value: 1,
+                duration: 1.7,
+                ease: "power2.inOut",
+                onUpdate: () => setProgress(state.value),
+                onComplete: finish,
+            });
 
-    if (!isVisible) return null;
+            return () => {
+                tl.kill();
+            };
+        },
+        { dependencies: [] },
+    );
 
-    // Size of the square (up to 200% of the diagonal to fully cover the screen)
+    useEffect(() => {
+        const update = () =>
+            setViewport({ width: window.innerWidth, height: window.innerHeight });
+        update();
+        window.addEventListener("resize", update);
+        return () => window.removeEventListener("resize", update);
+    }, []);
+
+    if (viewport.width === 0) return null;
+
     const maxSize =
-        Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2) * 2;
+        Math.sqrt(viewport.width ** 2 + viewport.height ** 2) * 2;
     const size = progress * maxSize;
-
-    // Center of the square
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    // Skew to simulate perspective
-    const skewAngle = (1 - progress) * 25; // Decreases progressively
+    const centerX = viewport.width / 2;
+    const centerY = viewport.height / 2;
+    const skewAngle = (1 - progress) * 25;
 
     return (
-        <AnimatePresence>
-            <motion.div
-                className="fixed inset-0 z-50"
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
+        <div className="fixed inset-0 z-50" aria-hidden="true">
+            <svg
+                width="100%"
+                height="100%"
+                style={{ position: "absolute", top: 0, left: 0 }}
             >
-                <svg
+                <defs>
+                    <mask id="loadingSquareMask">
+                        <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                        <g transform={`translate(${centerX}, ${centerY})`}>
+                            <rect
+                                x={-size / 2}
+                                y={-size / 2}
+                                width={size}
+                                height={size}
+                                fill="black"
+                                transform={`skewY(${skewAngle})`}
+                            />
+                        </g>
+                    </mask>
+                </defs>
+                <rect
                     width="100%"
                     height="100%"
-                    style={{ position: "absolute", top: 0, left: 0 }}
-                >
-                    <defs>
-                        <mask id="squareMask">
-                            {/* White mask (full) */}
-                            <rect
-                                x="0"
-                                y="0"
-                                width="100%"
-                                height="100%"
-                                fill="white"
-                            />
-                            {/* Black masking square, centered */}
-                            <g transform={`translate(${centerX}, ${centerY})`}>
-                                <rect
-                                    x={-size / 2}
-                                    y={-size / 2}
-                                    width={size}
-                                    height={size}
-                                    fill="black"
-                                    transform={`skewY(${skewAngle})`}
-                                />
-                            </g>
-                        </mask>
-                    </defs>
-
-                    {/* Background with mask */}
-                    <rect
-                        width="100%"
-                        height="100%"
-                        className="fill-primary"
-                        mask="url(#squareMask)"
-                    />
-                </svg>
-            </motion.div>
-        </AnimatePresence>
+                    style={{ fill: "var(--dg-bg-raised)" }}
+                    mask="url(#loadingSquareMask)"
+                />
+            </svg>
+        </div>
     );
 };
 

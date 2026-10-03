@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import TransitionLink from "@/components/pageTransitions/TransitionLink";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
@@ -288,12 +289,12 @@ export function LoginForm({ registered }: { registered?: boolean }) {
 
       <p className="mt-6 text-center text-sm text-[var(--dg-text-muted)]">
         Pas encore de compte ?{" "}
-        <Link
+        <TransitionLink
           href="/register"
           className="rounded font-semibold text-[var(--dg-accent)] transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-[var(--dg-accent)]"
         >
           Créer un compte
-        </Link>
+        </TransitionLink>
       </p>
     </AuthCard>
   );

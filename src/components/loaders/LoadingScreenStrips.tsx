@@ -1,72 +1,78 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+"use client";
+
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
 
 interface LoadingScreenStripsProps {
     onComplete: () => void;
 }
 
+const stripCount = 8;
+const delayPerStrip = 0.1;
+const stripDuration = 0.8;
+
 const LoadingScreenStrips = ({ onComplete }: LoadingScreenStripsProps) => {
-    const [isVisible, setIsVisible] = useState(true);
-    const [fillScreen, setFillScreen] = useState(false);
-    const stripCount = 8; // Number of vertical strips
-    const fillDuration = 0.8; // Duration for strips to fill the screen
-    const exitDuration = 0.8; // Duration for strips to exit
-    const totalDuration = fillDuration + exitDuration + 0.3; // Total animation time
-    const delayPerStrip = 0.1; // Delay between each strip's animation
+    const root = useRef<HTMLDivElement | null>(null);
+    const strips = useRef<(HTMLDivElement | null)[]>([]);
+    const finished = useRef(false);
 
-    useEffect(() => {
-        // Start filling the screen
-        const fillTimer = setTimeout(() => {
-            setFillScreen(true);
-        }, 100);
+    useGSAP(
+        () => {
+            if (!root.current) return;
 
-        // Trigger exit animation after filling
-        const exitTimer = setTimeout(() => {
-            setIsVisible(false);
-            onComplete();
-        }, totalDuration * 1000);
+            const finish = () => {
+                if (finished.current) return;
+                finished.current = true;
+                onComplete();
+            };
 
-        return () => {
-            clearTimeout(fillTimer);
-            clearTimeout(exitTimer);
-        };
-    }, [onComplete()]);
+            if (prefersReducedMotion()) {
+                finish();
+                return;
+            }
 
-    if (!isVisible) return null;
+            const targets = strips.current.filter(Boolean);
+            const tl = gsap.timeline({
+                onComplete: finish,
+            });
 
-    const stripVariants = (index: number) => ({
-        hiddenn: {
-            y: 0,
+            tl.to(targets, {
+                y: "-100vh",
+                duration: stripDuration,
+                ease: "power3.inOut",
+                stagger: delayPerStrip,
+            });
+
+            return () => {
+                tl.kill();
+            };
         },
-        visible: {
-            y: "-100vh",
-            transition: {
-                duration: fillDuration,
-                ease: "easeInOut",
-                delay: index * delayPerStrip,
-            },
-        },
-    });
+        { dependencies: [] },
+    );
 
     return (
-        <AnimatePresence>
-            <motion.div
-                className="fixed inset-0 z-50 flex"
-                exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            >
-                {Array.from({ length: stripCount }).map((_, index) => (
-                    <motion.div
-                        key={index}
-                        className="h-full bg-primary"
-                        style={{ width: `${100 / stripCount}%` }}
-                        variants={stripVariants(index)}
-                        initial="hidden"
-                        animate={fillScreen ? "visible" : "hidden"}
-                        exit="exit"
-                    />
-                ))}
-            </motion.div>
-        </AnimatePresence>
+        <div
+            ref={root}
+            className="fixed inset-0 z-50 flex"
+            aria-hidden="true"
+        >
+            {Array.from({ length: stripCount }).map((_, index) => (
+                <div
+                    key={index}
+                    ref={(el) => {
+                        strips.current[index] = el;
+                    }}
+                    className="h-full"
+                    style={{
+                        width: `${100 / stripCount}%`,
+                        background: index % 2 === 0
+                            ? "var(--dg-bg-raised)"
+                            : "var(--dg-bg)",
+                    }}
+                />
+            ))}
+        </div>
     );
 };
 

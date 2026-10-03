@@ -1,135 +1,127 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+"use client";
 
-const LoadingScreenAreYouReady = () => {
-    const [showText, setShowText] = useState(false);
-    const [isComplete, setIsComplete] = useState(false);
-    const [hideContent, setHideContent] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
 
-    const syllables = ["Are&nbsp;", "you&nbsp;", "rea", "dy?"];
-    const progressDuration = 0.5;
-    const pauseDuration = 1;
-    const contentExitDuration = 0.3;
-    const panelExitDuration = 1;
-    const syllableDuration = progressDuration / syllables.length;
+interface LoadingScreenAreYouReadyProps {
+    onComplete: () => void;
+}
 
-    const syllableVariants = {
-        hidden: { y: 50, opacity: 0 },
-        visible: (i: number) => ({
-            y: 0,
-            opacity: 1,
-            transition: {
-                delay: i * syllableDuration,
-                duration: syllableDuration,
-                ease: "easeOut",
-            },
-        }),
-        exit: (i: number) => ({
-            y: -100,
-            opacity: 0,
-            transition: {
-                delay: (i * contentExitDuration) / syllables.length,
-                duration: contentExitDuration,
-                ease: "easeInOut",
-            },
-        }),
-    };
+const syllables = ["Are", "you", "rea", "dy?"];
 
-    const panelVariants = {
-        initial: { y: 0 },
-        exit: {
-            y: "-100vh",
-            transition: { duration: panelExitDuration, ease: "easeInOut" },
+const LoadingScreenAreYouReady = ({
+    onComplete,
+}: LoadingScreenAreYouReadyProps) => {
+    const panel = useRef<HTMLDivElement | null>(null);
+    const content = useRef<HTMLDivElement | null>(null);
+    const bar = useRef<HTMLDivElement | null>(null);
+    const text = useRef<HTMLParagraphElement | null>(null);
+    const finished = useRef(false);
+
+    useGSAP(
+        () => {
+            if (!panel.current || !bar.current || !content.current || !text.current)
+                return;
+
+            const finish = () => {
+                if (finished.current) return;
+                finished.current = true;
+                onComplete();
+            };
+
+            if (prefersReducedMotion()) {
+                finish();
+                return;
+            }
+
+            const tl = gsap.timeline({
+                onComplete: finish,
+            });
+
+            tl.fromTo(
+                text.current.querySelectorAll("span"),
+                { y: 54, opacity: 0 },
+                {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.45,
+                    ease: "power3.out",
+                    stagger: 0.14,
+                },
+                0.15,
+            )
+                .fromTo(
+                    bar.current,
+                    { width: "0%" },
+                    {
+                        width: "100%",
+                        duration: 0.55,
+                        ease: "power1.inOut",
+                    },
+                    0.25,
+                )
+                .to(content.current, {
+                    opacity: 0,
+                    y: -24,
+                    duration: 0.3,
+                    ease: "power2.in",
+                })
+                .to(panel.current, {
+                    y: "-100%",
+                    duration: 1,
+                    ease: "power3.inOut",
+                }, "+=0.25");
+
+            return () => {
+                tl.kill();
+            };
         },
-    };
-
-    const progressContainerVariants = {
-        initial: { opacity: 1 },
-        exit: { opacity: 0, transition: { duration: contentExitDuration } },
-    };
-
-    useEffect(() => {
-        setShowText(true);
-
-        const contentTimer = setTimeout(
-            () => {
-                setHideContent(true);
-            },
-            (progressDuration + pauseDuration) * 1000,
-        );
-
-        const completeTimer = setTimeout(
-            () => {
-                setIsComplete(true);
-                setTimeout(() => {
-                    setIsVisible(false);
-                }, panelExitDuration * 1000);
-            },
-            (progressDuration + pauseDuration + contentExitDuration) * 1000,
-        );
-
-        return () => {
-            clearTimeout(contentTimer);
-            clearTimeout(completeTimer);
-        };
-    }, []);
-    if (!isVisible) return null;
+        { dependencies: [] },
+    );
 
     return (
-        <AnimatePresence>
-            {!isComplete && (
-                <motion.div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-primary"
-                    variants={panelVariants}
-                    initial="initial"
-                    exit="exit"
+        <div
+            ref={panel}
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+            style={{ background: "var(--dg-bg)" }}
+            aria-hidden="true"
+        >
+            <div ref={content} className="relative flex flex-col items-center">
+                <div
+                    className="mb-6 rounded-full border border-[var(--dg-border)] bg-white/[0.04] px-4 py-1.5 text-xs text-[var(--dg-text-muted)]"
                 >
-                    <AnimatePresence>
-                        {!hideContent && (
-                            <div className="text-center">
-                                {showText && (
-                                    <div className="mb-4 flex justify-center overflow-hidden">
-                                        {syllables.map((syllable, index) => (
-                                            <motion.span
-                                                key={index}
-                                                className="font-zektonbo text-4xl leading-snug font-bold text-white md:text-7xl"
-                                                custom={index}
-                                                variants={syllableVariants}
-                                                initial="hidden"
-                                                animate="visible"
-                                                exit="exit"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: syllable,
-                                                }} // Utiliser dangerouslySetInnerHTML pour afficher les entités HTML
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                                <motion.div
-                                    className="w-full"
-                                    variants={progressContainerVariants}
-                                    initial="initial"
-                                    exit="exit"
-                                >
-                                    <div className="h-1 w-full rounded bg-gray-300">
-                                        <motion.div
-                                            className="h-full rounded bg-white"
-                                            initial={{ width: "0%" }}
-                                            animate={{ width: "100%" }}
-                                            transition={{
-                                                duration: progressDuration,
-                                                ease: "linear",
-                                            }}
-                                        />
-                                    </div>
-                                </motion.div>
-                            </div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                    TERRA&nbsp;NOVA
+                </div>
+                <p
+                    ref={text}
+                    className="text-4xl font-bold leading-snug text-white md:text-6xl"
+                >
+                    {syllables.map((syllable, index) => (
+                        <span
+                            key={index}
+                            className={index === syllables.length - 1
+                                ? "text-[var(--dg-accent-bright)]"
+                                : "text-white"}
+                        >
+                            {syllable}
+                            {index < syllables.length - 1 ? "\u00A0" : ""}
+                        </span>
+                    ))}
+                </p>
+                <div className="mt-10 h-1 w-64 overflow-hidden rounded-full bg-white/10">
+                    <div
+                        ref={bar}
+                        className="h-full rounded-full"
+                        style={{
+                            background:
+                                "linear-gradient(to right, var(--dg-accent-bright), var(--dg-accent))",
+                            boxShadow: "0 0 16px var(--dg-accent-glow)",
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
     );
 };
 

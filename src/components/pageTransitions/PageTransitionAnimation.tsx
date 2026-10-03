@@ -1,45 +1,45 @@
-import React from "react";
-import { AnimatePresence } from "framer-motion";
-import { useLocation } from "react-router-dom";
-import { usePageTransition } from "../../hooks/PageTransitionProvider";
-import "./PageTransitionAnimation.css";
+"use client";
+
+import { usePathname } from "next/navigation";
+import { usePageTransition } from "./PageTransitionProvider";
+import SlitTransition from "./SlitTransition";
 import StripTransition from "./StripTransition";
-import SplitTransition from "./SlitTransition";
 import StripCenterTransition from "./StripCenterTransition";
 import DiagonalWipeTransition from "./DiagonalWipeTransition";
 import ZoomBurstTransition from "./ZoomBurstTransition";
 import GlitchSlideTransition from "./GlitchSlideTransition";
 
-const getLoadingScreen = (selectedPath: string) => {
-    switch (selectedPath) {
-        case "/SquareHole":
-            return <DiagonalWipeTransition />;
-        case "/AreYouReady":
-            return <GlitchSlideTransition />;
-        case "/pixel":
-            return <ZoomBurstTransition />;
-        case "/StripsCenter":
-            return <StripCenterTransition />;
+const renderTransition = (
+    path: string,
+    phase: "cover" | "reveal",
+    onComplete: () => void,
+): React.ReactElement => {
+    switch (path) {
         case "/":
-            return <SplitTransition />;
+            return <SlitTransition phase={phase} onComplete={onComplete} />;
+        case "/login":
+            return <StripTransition phase={phase} onComplete={onComplete} />;
+        case "/register":
+            return <StripCenterTransition phase={phase} onComplete={onComplete} />;
+        case "/square-hole":
+            return <DiagonalWipeTransition phase={phase} onComplete={onComplete} />;
+        case "/pixel":
+            return <ZoomBurstTransition phase={phase} onComplete={onComplete} />;
+        case "/strips":
+            return <GlitchSlideTransition phase={phase} onComplete={onComplete} />;
         default:
-            return <StripTransition />;
+            return <StripTransition phase={phase} onComplete={onComplete} />;
     }
 };
 
 const PageTransitionAnimation: React.FC = () => {
-    const { isTransitioning, targetPath } = usePageTransition();
-    const location = useLocation();
+    const { targetPath, completeTransition } = usePageTransition();
+    const pathname = usePathname();
 
-    // Select animation based on target path (or current path if not transitioning)
-    const selectedPath =
-        isTransitioning && targetPath ? targetPath : location.pathname;
+    const phase = pathname === targetPath ? "reveal" : "cover";
+    const path = targetPath ?? pathname;
 
-    return (
-        <AnimatePresence>
-            {isTransitioning && getLoadingScreen(selectedPath)}
-        </AnimatePresence>
-    );
+    return renderTransition(path, phase, completeTransition);
 };
 
 export default PageTransitionAnimation;

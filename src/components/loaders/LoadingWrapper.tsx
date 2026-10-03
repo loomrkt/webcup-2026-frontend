@@ -1,68 +1,57 @@
-// import React, { useEffect } from "react";
-// import { useLocation } from "react-router-dom";
-// import LoadingScreenSplit from "./LoadingScreenSplit";
-// import LoadingScreenAreYouReady from "./LoadingScreenAreYouReady";
-// import PixelLoadingScreen from "./PixelLoadingScreen";
-// import LoadingSquareHole from "./LoadingSquareHole";
-// import LoadingScreenStrips from "./LoadingScreenStrips";
-// import LoadingScreenStripsCenter from "./loadingScreenStripsCenter";
+"use client";
 
-// interface LoadingWrapperProps {
-//     children: React.ReactNode;
-// }
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import LoadingScreenSplit from "./LoadingScreenSplit";
+import LoadingScreenAreYouReady from "./LoadingScreenAreYouReady";
+import PixelLoadingScreen from "./PixelLoadingScreen";
+import LoadingSquareHole from "./LoadingSquareHole";
+import LoadingScreenStrips from "./LoadingScreenStrips";
+import LoadingScreenStripsCenter from "./loadingScreenStripsCenter";
+import { markAppLoaded } from "@/helpers/loader-events";
 
-// const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children }) => {
-//     const location = useLocation();
+interface LoadingWrapperProps {
+    children: React.ReactNode;
+}
 
-//     useEffect(() => {
-//         console.log("Navigating to:", location.pathname);
-//     }, [location.pathname]);
+const renderLoader = (
+    path: string,
+    onComplete: () => void,
+): React.ReactElement => {
+    switch (path) {
+        case "/login":
+            return <LoadingScreenAreYouReady onComplete={onComplete} />;
+        case "/register":
+            return <LoadingScreenStripsCenter onComplete={onComplete} />;
+        case "/pixel":
+            return <PixelLoadingScreen onComplete={onComplete} />;
+        case "/square-hole":
+            return <LoadingSquareHole onComplete={onComplete} />;
+        case "/strips":
+            return <LoadingScreenStrips onComplete={onComplete} />;
+        default:
+            return <LoadingScreenSplit onComplete={onComplete} />;
+    }
+};
 
-//     const handleLoadingComplete = () => {
-//         console.log("Loading complete");
-//     };
+const LoadingWrapper: React.FC<LoadingWrapperProps> = ({ children }) => {
+    const pathname = usePathname();
+    const [initialPath] = useState(() => pathname);
+    const [active, setActive] = useState(true);
 
-//     const getLoadingScreen = () => {
-//         switch (location.pathname) {
-//             case "/":
-//                 return (
-//                     <LoadingScreenSplit onComplete={handleLoadingComplete} />
-//                 );
-//             case "/AreYouReady":
-//                 return (
-//                     <LoadingScreenAreYouReady
-//                         onComplete={handleLoadingComplete}
-//                     />
-//                 );
-//             case "/pixel":
-//                 return (
-//                     <PixelLoadingScreen onComplete={handleLoadingComplete} />
-//                 );
-//             case "/SquareHole":
-//                 return <LoadingSquareHole onComplete={handleLoadingComplete} />;
-//             case "/Strips":
-//                 return (
-//                     <LoadingScreenStrips onComplete={handleLoadingComplete} />
-//                 );
-//             case "/StripsCenter":
-//                 return (
-//                     <LoadingScreenStripsCenter
-//                         onComplete={handleLoadingComplete}
-//                     />
-//                 );
-//             default:
-//                 return (
-//                     <LoadingScreenSplit onComplete={handleLoadingComplete} />
-//                 );
-//         }
-//     };
+    if (!active) {
+        return <>{children}</>;
+    }
 
-//     return (
-//         <>
-//             {getLoadingScreen()}
-//             <div>{children}</div>
-//         </>
-//     );
-// };
+    return (
+        <>
+            {renderLoader(initialPath, () => {
+                markAppLoaded();
+                setActive(false);
+            })}
+            {children}
+        </>
+    );
+};
 
-// export default LoadingWrapper;
+export default LoadingWrapper;

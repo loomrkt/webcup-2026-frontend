@@ -1,106 +1,92 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+"use client";
+
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
 
 interface LoadingScreenSplitProps {
     onComplete: () => void;
 }
 
 const LoadingScreenSplit = ({ onComplete }: LoadingScreenSplitProps) => {
-    const durationVertical = 1;
-    const durationHorizontal = 1;
-    const totalDuration = durationVertical + durationHorizontal;
+    const root = useRef<HTMLDivElement | null>(null);
+    const left = useRef<HTMLDivElement | null>(null);
+    const right = useRef<HTMLDivElement | null>(null);
+    const line = useRef<HTMLDivElement | null>(null);
+    const finished = useRef(false);
 
-    const [showVertical, setShowVertical] = useState(true);
-    const [showHorizontal, setShowHorizontal] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
+    useGSAP(
+        () => {
+            if (!root.current || !left.current || !right.current || !line.current)
+                return;
 
-    const lineVariants = {
-        hidden: { height: 0 },
-        visible: {
-            height: "100vh",
-            transition: { duration: durationVertical, ease: "easeInOut" },
+            const finish = () => {
+                if (finished.current) return;
+                finished.current = true;
+                onComplete();
+            };
+
+            if (prefersReducedMotion()) {
+                finish();
+                return;
+            }
+
+            const tl = gsap.timeline({
+                onComplete: finish,
+            });
+
+            tl.fromTo(
+                line.current,
+                { height: "0%" },
+                {
+                    height: "100%",
+                    duration: 0.7,
+                    ease: "power2.inOut",
+                },
+            ).to(
+                [left.current, right.current],
+                {
+                    x: (_index, target) =>
+                        target === left.current ? "-100%" : "100%",
+                    duration: 0.9,
+                    ease: "power3.inOut",
+                },
+                "+=0.1",
+            );
+
+            return () => {
+                tl.kill();
+            };
         },
-        exit: { opacity: 0, transition: { duration: 0.2 } },
-    };
-
-    const leftPanelVariants = {
-        initial: { x: 0 },
-        animate: {
-            x: "-100vw",
-            transition: { duration: durationHorizontal, ease: "easeInOut" },
-        },
-        exit: {
-            opacity: 0,
-            x: "-100vw",
-            transition: { duration: 0.3 },
-        },
-    };
-
-    const rightPanelVariants = {
-        initial: { x: 0 },
-        animate: {
-            x: "100vw",
-            transition: { duration: durationHorizontal, ease: "easeInOut" },
-        },
-        exit: {
-            opacity: 0,
-            x: "100vw",
-            transition: { duration: 0.3 },
-        },
-    };
-
-    useEffect(() => {
-        const verticalTimer = setTimeout(() => {
-            setShowVertical(false);
-            setShowHorizontal(true);
-        }, durationVertical * 1000);
-
-        const horizontalTimer = setTimeout(() => {
-            setIsVisible(false);
-            onComplete();
-        }, totalDuration * 1000);
-
-        return () => {
-            clearTimeout(verticalTimer);
-            clearTimeout(horizontalTimer);
-        };
-    }, [onComplete()]);
-
-    if (!isVisible) return null;
+        { dependencies: [] },
+    );
 
     return (
-        <AnimatePresence>
-            <motion.div
-                className="fixed inset-0 z-50 flex items-center justify-center"
-                exit={{ opacity: 0, transition: { duration: 0.3 } }}
-            >
-                <div className="absolute inset-0 flex">
-                    <motion.div
-                        className="h-full w-1/2 bg-primary"
-                        variants={leftPanelVariants}
-                        initial="initial"
-                        animate={showHorizontal ? "animate" : "initial"}
-                        exit="exit"
-                    />
-                    <motion.div
-                        className="h-full w-1/2 bg-primary"
-                        variants={rightPanelVariants}
-                        initial="initial"
-                        animate={showHorizontal ? "animate" : "initial"}
-                        exit="exit"
-                    />
-                </div>
-                {showVertical && (
-                    <motion.div
-                        className="z-10 w-1 bg-white"
-                        variants={lineVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                    />
-                )}
-            </motion.div>
-        </AnimatePresence>
+        <div
+            ref={root}
+            className="fixed inset-0 z-50 flex overflow-hidden"
+            style={{ background: "var(--dg-bg)" }}
+            aria-hidden="true"
+        >
+            <div
+                ref={left}
+                className="h-full w-1/2"
+                style={{ background: "var(--dg-bg-raised)" }}
+            />
+            <div
+                ref={line}
+                className="relative z-10 w-px"
+                style={{
+                    background: "var(--dg-accent-bright)",
+                    boxShadow: "0 0 24px var(--dg-accent-glow)",
+                }}
+            />
+            <div
+                ref={right}
+                className="h-full w-1/2"
+                style={{ background: "var(--dg-bg-raised)" }}
+            />
+        </div>
     );
 };
 

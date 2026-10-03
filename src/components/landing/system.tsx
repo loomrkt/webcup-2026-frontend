@@ -1,4 +1,5 @@
 import { TerminalSquare, ShieldCheck } from "lucide-react";
+import TextStretch from "@/components/animations/text/TextStretch";
 import RequestFeed from "./request-feed";
 import Reveal from "./reveal";
 
@@ -8,11 +9,13 @@ export default function System() {
   return (
     <section id="systeme" className="relative py-28 md:py-36">
       <div className="dg-container grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-        <Reveal>
+        <div>
           <p className="dg-eyebrow mb-4">Le système de demandes</p>
-          <h2 className="text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.02em]">
-            La ville parle. La plateforme écoute.
-          </h2>
+          <TextStretch
+            text="La ville parle. La plateforme écoute."
+            as="h2"
+            className="text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.08] tracking-[-0.02em]"
+          />
           <p className="mt-6 max-w-[46ch] leading-relaxed text-[var(--dg-text-muted)]">
             Les habitants et le Haut Conseil expriment leurs besoins via l’API
             officielle de Terra Nova. Certaines demandes nous attendent déjà,
@@ -28,7 +31,7 @@ export default function System() {
               </span>
             ))}
           </div>
-        </Reveal>
+        </div>
 
         <Reveal delay={0.15}>
           <div className="relative">

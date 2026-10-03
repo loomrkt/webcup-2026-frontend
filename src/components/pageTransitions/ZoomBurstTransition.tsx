@@ -1,42 +1,63 @@
-import React from "react";
-import { motion, Variants } from "framer-motion";
+"use client";
 
-interface ZoomBurstProps {
-    className?: string;
-}
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
+import { PageTransitionProps } from "./types";
 
-const zoomVariants: Variants = {
-    initial: {
-        scale: 0,
-        rotate: -90,
-        opacity: 0,
-        transition: { duration: 0.7, ease: "easeOut" },
-    },
-    animate: {
-        scale: 1.5,
-        rotate: 0,
-        opacity: 1,
-        transition: { duration: 0.7, ease: "easeOut" },
-    },
-    exit: {
-        scale: 0,
-        rotate: 90,
-        opacity: 0,
-        transition: { duration: 0.7, ease: "easeIn" },
-    },
-};
-
-const ZoomBurstTransition: React.FC<ZoomBurstProps> = ({
-    className = "fixed inset-0 z-50 bg-gradient-to-br from-purple-600 to-pink-500",
+const ZoomBurstTransition: React.FC<PageTransitionProps> = ({
+    phase,
+    onComplete,
 }) => {
+    const burst = useRef<HTMLDivElement | null>(null);
+
+    useGSAP(
+        () => {
+            if (!burst.current) return;
+
+            if (prefersReducedMotion()) {
+                if (phase === "reveal") onComplete?.();
+                return;
+            }
+
+            const tl = gsap.timeline();
+
+            if (phase === "cover") {
+                tl.to(burst.current, {
+                    scale: 3,
+                    duration: 0.75,
+                    ease: "power3.inOut",
+                });
+            } else {
+                tl.to(burst.current, {
+                    scale: 0,
+                    duration: 0.75,
+                    ease: "power3.inOut",
+                    onComplete: () => onComplete?.(),
+                });
+            }
+
+            return () => {
+                tl.kill();
+            };
+        },
+        { dependencies: [phase] },
+    );
+
     return (
-        <motion.div
-            className={className}
-            variants={zoomVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-        />
+        <div className="fixed inset-0 z-[100] overflow-hidden">
+            <div
+                ref={burst}
+                className="absolute size-full"
+                style={{
+                    background:
+                        "radial-gradient(closest-side, var(--dg-accent), var(--dg-accent-deep) 70%)",
+                    borderRadius: "100%",
+                    transformOrigin: "50% 50%",
+                    transform: "scale(0)",
+                }}
+            />
+        </div>
     );
 };
 

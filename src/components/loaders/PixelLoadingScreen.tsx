@@ -1,58 +1,58 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 
 interface LoadingScreenPixelProps {
     onComplete: () => void;
 }
 
-const pixelSize = window.innerWidth / 20;
-const loaderDuration = 4000;
-const initialDelay = 500;
+const cellSize = 44;
 
 const LoadingScreenPixel = ({ onComplete }: LoadingScreenPixelProps) => {
-    const [pixels, setPixels] = useState<number[]>([]);
+    const [pixels] = useState<number[]>(() => {
+        if (typeof window === "undefined") return [];
+        const cols = Math.max(1, Math.ceil(window.innerWidth / cellSize));
+        const rows = Math.max(1, Math.ceil(window.innerHeight / cellSize));
+        return Array.from({ length: cols * rows }, (_, i) => i);
+    });
     const [hiddenPixels, setHiddenPixels] = useState<Set<number>>(new Set());
-    const [startAnimation, setStartAnimation] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
+    const finished = useRef(false);
+    const onCompleteRef = useRef(onComplete);
 
     useEffect(() => {
-        const cols = Math.ceil(window.innerWidth / pixelSize);
-        const rows = Math.ceil(window.innerHeight / pixelSize);
-        const total = rows * cols;
-        const pixelArray = Array.from({ length: total }, (_, i) => i);
-        setPixels(pixelArray);
-
-        const delayTimer = setTimeout(() => {
-            setStartAnimation(true);
-        }, initialDelay);
-
-        const pixelsToHide = [...pixelArray];
+        const cols = Math.max(1, Math.ceil(window.innerWidth / cellSize));
+        const rows = Math.max(1, Math.ceil(window.innerHeight / cellSize));
+        const remaining = Array.from(
+            { length: cols * rows },
+            (_, i) => i,
+        );
         const hidden = new Set<number>();
 
-        const interval = setInterval(() => {
-            if (pixelsToHide.length === 0) {
-                clearInterval(interval);
-                onComplete();
-                setIsVisible(false);
+        const finish = () => {
+            if (finished.current) return;
+            finished.current = true;
+            setIsVisible(false);
+            onCompleteRef.current();
+        };
+
+        const interval = window.setInterval(() => {
+            if (remaining.length === 0) {
+                window.clearInterval(interval);
+                finish();
                 return;
             }
 
-            if (startAnimation) {
-                for (let i = 0; i < 20 && pixelsToHide.length > 0; i++) {
-                    const index = Math.floor(
-                        Math.random() * pixelsToHide.length,
-                    );
-                    const pixel = pixelsToHide.splice(index, 1)[0];
-                    hidden.add(pixel);
-                }
-                setHiddenPixels(new Set(hidden));
+            const batch = Math.min(22, remaining.length);
+            for (let i = 0; i < batch; i++) {
+                const index = Math.floor(Math.random() * remaining.length);
+                hidden.add(remaining.splice(index, 1)[0]);
             }
-        }, loaderDuration / 60);
+            setHiddenPixels(new Set(hidden));
+        }, 34);
 
-        return () => {
-            clearTimeout(delayTimer);
-            clearInterval(interval);
-        };
-    }, [onComplete, startAnimation]);
+        return () => window.clearInterval(interval);
+    }, []);
 
     if (!isVisible) return null;
 
@@ -61,20 +61,25 @@ const LoadingScreenPixel = ({ onComplete }: LoadingScreenPixelProps) => {
             className="fixed inset-0 z-50"
             style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(auto-fill, ${pixelSize}px)`,
-                gridTemplateRows: `repeat(auto-fill, ${pixelSize}px)`,
+                gridTemplateColumns: `repeat(auto-fill, ${cellSize}px)`,
                 gap: 0,
                 width: "100vw",
                 height: "100vh",
+                background: "var(--dg-bg-raised)",
             }}
+            aria-hidden="true"
         >
             {pixels.map((pixel) => (
                 <div
                     key={pixel}
-                    className={`bg-primary transition-opacity duration-400 ease-out ${
+                    className={`transition-opacity duration-200 ease-out ${
                         hiddenPixels.has(pixel) ? "opacity-0" : "opacity-100"
                     }`}
-                    style={{ width: pixelSize, height: pixelSize }}
+                    style={{
+                        width: cellSize,
+                        height: cellSize,
+                        background: "var(--dg-bg-raised)",
+                    }}
                 />
             ))}
         </div>

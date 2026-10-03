@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Orbit } from "lucide-react";
+import TransitionLink from "@/components/pageTransitions/TransitionLink";
 
 const links = [
   { href: "#ville", label: "La ville" },
@@ -33,9 +34,9 @@ export default function Nav() {
           ))}
         </nav>
 
-        <Link href="/login" className="dg-btn-primary !px-5 !py-2.5">
+        <TransitionLink href="/login" className="dg-btn-primary !px-5 !py-2.5">
           Accéder à la plateforme
-        </Link>
+        </TransitionLink>
       </div>
     </header>
   );

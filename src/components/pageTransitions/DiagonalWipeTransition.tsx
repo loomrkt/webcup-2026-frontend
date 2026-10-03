@@ -1,87 +1,64 @@
-// import React from 'react';
-// import { motion, Variants } from 'framer-motion';
+"use client";
 
-// interface FlipTransitionProps {
-//   className?: string;
-// }
+import { useRef } from "react";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
+import { PageTransitionProps } from "./types";
 
-// const flipVariants: Variants = {
-//   initial: {
-//     scale: 1,
-//     rotateY: 180,
-//     opacity: 0,
-//     transition: { duration: 0.6, ease: 'easeInOut' },
-//   },
-//   animate: {
-//     scale: 1,
-//     rotateY: 0,
-//     opacity: 1,
-//     transition: { duration: 0.6, ease: 'easeInOut' },
-//   },
-//   exit: {
-//     scale: 1,
-//     rotateY: 180,
-//     opacity: 0,
-//     transition: { duration: 0.6, ease: 'easeInOut' },
-//   },
-// };
-
-// const FlipTransition: React.FC<FlipTransitionProps> = ({
-//   className = 'fixed inset-0 z-50 bg-blue-500',
-// }) => {
-//   return (
-//     <motion.div
-//       className={className}
-//       variants={flipVariants}
-//       initial="initial"
-//       animate="animate"
-//       exit="exit"
-//     />
-//   );
-// };
-
-// export default FlipTransition;
-
-import React from "react";
-import { motion, Variants } from "framer-motion";
-
-interface FillTransitionProps {
-    className?: string;
-}
-
-const fillVariants: Variants = {
-    initial: {
-        scale: 0,
-        y: "0%",
-        transition: { duration: 0.5, ease: "easeInOut" },
-    },
-    animate: {
-        scale: 4,
-        transition: { duration: 0.5, ease: "easeInOut" },
-    },
-    exit: {
-        scale: 0,
-        transition: { duration: 0.5, ease: "easeInOut" },
-    },
-};
-
-const FillTransition: React.FC<FillTransitionProps> = ({
-    className = "fixed inset-0 z-50 bg-green-500",
+const DiagonalWipeTransition: React.FC<PageTransitionProps> = ({
+    phase,
+    onComplete,
 }) => {
+    const block = useRef<HTMLDivElement | null>(null);
+
+    useGSAP(
+        () => {
+            if (!block.current) return;
+
+            if (prefersReducedMotion()) {
+                if (phase === "reveal") onComplete?.();
+                return;
+            }
+
+            const tl = gsap.timeline();
+
+            if (phase === "cover") {
+                tl.to(block.current, {
+                    scale: 1,
+                    duration: 0.75,
+                    ease: "power3.inOut",
+                });
+            } else {
+                tl.to(block.current, {
+                    scale: 0,
+                    duration: 0.75,
+                    ease: "power3.inOut",
+                    onComplete: () => onComplete?.(),
+                });
+            }
+
+            return () => {
+                tl.kill();
+            };
+        },
+        { dependencies: [phase] },
+    );
+
     return (
-        <motion.div
-            className={className}
-            variants={fillVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            style={{
-                borderRadius: "100%", // Pour donner l'apparence d'un point
-                position: "absolute",
-                bottom: 0,
-            }}
-        />
+        <div className="fixed inset-0 z-[100] overflow-hidden">
+            <div
+                ref={block}
+                className="absolute inset-x-0 bottom-0 h-[120%]"
+                style={{
+                    background:
+                        "linear-gradient(135deg, var(--dg-accent-deep), var(--dg-bg-raised) 70%)",
+                    borderRadius: "100%",
+                    transformOrigin: "50% 100%",
+                    transform: "scale(0)",
+                }}
+            />
+        </div>
     );
 };
 
-export default FillTransition;
+export default DiagonalWipeTransition;
