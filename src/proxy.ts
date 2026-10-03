@@ -7,12 +7,16 @@ export default auth((request) => {
   const isAuthPage =
     nextUrl.pathname.startsWith("/login") ||
     nextUrl.pathname.startsWith("/register");
+  const isPublic =
+    nextUrl.pathname === "/" ||
+    isAuthPage ||
+    nextUrl.pathname.startsWith("/api");
 
   if (isLoggedIn && isAuthPage) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
-  if (!isLoggedIn && !isAuthPage && !nextUrl.pathname.startsWith("/api")) {
+  if (!isLoggedIn && !isPublic) {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
