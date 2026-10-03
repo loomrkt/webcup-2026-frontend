@@ -20,8 +20,8 @@ export function PasswordChecklist({ password }: { password: string }) {
             key={index}
             className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
               index < doneCount
-                ? "bg-gradient-to-r from-cyan-400 to-violet-500"
-                : "bg-slate-700"
+                ? "bg-[var(--dg-accent)] shadow-[0_0_8px_var(--dg-accent-glow)]"
+                : "bg-white/10"
             }`}
           />
         ))}
@@ -33,12 +33,12 @@ export function PasswordChecklist({ password }: { password: string }) {
             <li
               key={rule.label}
               className={`flex items-center gap-1.5 text-[11px] transition-colors ${
-                done ? "text-cyan-300" : "text-slate-500"
+                done ? "text-[var(--dg-accent-bright)]" : "text-[var(--dg-text-faint)]"
               }`}
             >
               <Check
                 className={`size-3 shrink-0 ${
-                  done ? "text-emerald-400" : "text-slate-600"
+                  done ? "text-[var(--dg-success)]" : "text-[var(--dg-text-faint)]"
                 }`}
                 aria-hidden="true"
               />

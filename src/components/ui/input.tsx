@@ -8,9 +8,10 @@ export const Input = forwardRef<
   <input
     ref={ref}
     className={cn(
-      "h-11 w-full rounded-lg border border-cyan-400/20 bg-slate-950/60 px-4 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur transition-all outline-none",
-      "placeholder:text-slate-500 hover:border-cyan-400/40",
-      "focus:border-cyan-400/60 focus:ring-4 focus:ring-cyan-400/10",
+      "h-12 w-full rounded-xl border border-[var(--dg-border)] bg-white/[0.04] px-4 text-sm text-[var(--dg-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur transition-all outline-none",
+      "placeholder:text-[var(--dg-text-faint)]",
+      "hover:border-[var(--dg-border-strong)]",
+      "focus:border-[var(--dg-accent)]/70 focus:ring-4 focus:ring-[var(--dg-accent)]/15",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
