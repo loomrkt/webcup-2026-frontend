@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguageStore } from "@/features/language-selector";
+import { useQuickActions } from "@/features/quick-actions/store";
 import { cn } from "@/lib/utils";
 import { useRoleGuard } from "@/guards/role-guard";
-import { NAV_SECTIONS, navItems, type NavSection } from "./nav-config";
+import { NAV_SECTIONS, navItems, type NavItem } from "./nav-config";
 import { useMemo } from "react";
 
 export function SidebarBrand() {
@@ -27,10 +28,87 @@ export function SidebarBrand() {
   );
 }
 
+function NavRow({
+  item,
+  active,
+  onNavigate,
+}: {
+  item: NavItem;
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  const t = useLanguageStore((s) => s.t);
+  const openAction = useQuickActions((s) => s.open);
+  const label = item.tKey ? t(item.tKey, item.label) : item.label;
+
+  const className = cn(
+    "group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all duration-300",
+    active
+      ? "text-white"
+      : "text-[var(--dg-text-muted)] hover:bg-[var(--dg-bg-card-hover)] hover:text-white",
+  );
+
+  const inner = (
+    <>
+      {active ? (
+        <>
+          <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--dg-accent)]/25 via-[var(--dg-accent)]/10 to-transparent" />
+          <span className="absolute inset-0 rounded-xl border border-[var(--dg-accent-border)]" />
+          <span className="absolute -left-px top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[var(--dg-accent-bright)] shadow-[0_0_12px_var(--dg-accent-glow)]" />
+          <span className="absolute inset-0 rounded-xl opacity-0 shadow-[0_0_24px_var(--dg-accent-glow)] transition-opacity duration-300 group-hover:opacity-100" />
+        </>
+      ) : null}
+      <item.icon
+        className={cn(
+          "relative z-10 h-[18px] w-[18px] shrink-0 transition-colors duration-300",
+          active
+            ? "text-[var(--dg-accent-bright)] drop-shadow-[0_0_6px_var(--dg-accent-glow)]"
+            : "text-[var(--dg-text-faint)] group-hover:text-[var(--dg-accent-bright)]",
+        )}
+      />
+      <span className="relative z-10 truncate">{label}</span>
+      {item.badge ? (
+        <Badge
+          className={cn(
+            "relative z-10 ml-auto h-5 min-w-5 justify-center rounded-full px-1 text-[11px]",
+            active
+              ? "bg-[var(--dg-accent)] text-white shadow-[0_0_12px_var(--dg-accent-glow)]"
+              : "bg-[var(--dg-danger)] text-white",
+          )}
+        >
+          {item.badge}
+        </Badge>
+      ) : null}
+    </>
+  );
+
+  // Items "action" → ouvrent une modale (Signaler un problème, Contact).
+  if (item.action) {
+    const action = item.action;
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          openAction(action);
+          onNavigate?.();
+        }}
+        className={cn(className, "cursor-pointer")}
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={item.href ?? "#"} onClick={onNavigate} className={className}>
+      {inner}
+    </Link>
+  );
+}
+
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { isLoading, canAccess } = useRoleGuard();
-  const t = useLanguageStore((s) => s.t);
 
   const items = useMemo(
     () => navItems.filter((item) => canAccess(item.roles, item.permissions)),
@@ -39,58 +117,36 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
   if (isLoading) return <SidebarNavSkeleton />;
 
+  const sections = NAV_SECTIONS.filter((section) =>
+    items.some((item) => item.section === section),
+  );
+
   return (
-    <nav className="flex flex-col gap-1 px-3">
-      {items.map((item) => {
-        const active = item.isActive
-          ? item.isActive(pathname ?? "")
-          : pathname?.startsWith(item.href);
-        return (
-          <Link
-            key={item.key}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all duration-300",
-              active
-                ? "text-white"
-                : "text-[var(--dg-text-muted)] hover:bg-[var(--dg-bg-card-hover)] hover:text-white",
-            )}
-          >
-            {active ? (
-              <>
-                <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--dg-accent)]/25 via-[var(--dg-accent)]/10 to-transparent" />
-                <span className="absolute inset-0 rounded-xl border border-[var(--dg-accent-border)]" />
-                <span className="absolute -left-px top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[var(--dg-accent-bright)] shadow-[0_0_12px_var(--dg-accent-glow)]" />
-                <span className="absolute inset-0 rounded-xl opacity-0 shadow-[0_0_24px_var(--dg-accent-glow)] transition-opacity duration-300 group-hover:opacity-100" />
-              </>
-            ) : null}
-            <item.icon
-              className={cn(
-                "relative z-10 h-[18px] w-[18px] shrink-0 transition-colors duration-300",
-                active
-                  ? "text-[var(--dg-accent-bright)] drop-shadow-[0_0_6px_var(--dg-accent-glow)]"
-                  : "text-[var(--dg-text-faint)] group-hover:text-[var(--dg-accent-bright)]",
-              )}
-            />
-            <span className="relative z-10 truncate">
-              {item.tKey ? t(item.tKey, item.label) : item.label}
-            </span>
-            {item.badge ? (
-              <Badge
-                className={cn(
-                  "relative z-10 ml-auto h-5 min-w-5 justify-center rounded-full px-1 text-[11px]",
-                  active
-                    ? "bg-[var(--dg-accent)] text-white shadow-[0_0_12px_var(--dg-accent-glow)]"
-                    : "bg-[var(--dg-danger)] text-white",
-                )}
-              >
-                {item.badge}
-              </Badge>
-            ) : null}
-          </Link>
-        );
-      })}
+    <nav className="flex flex-col gap-5 px-3" aria-label="Navigation principale">
+      {sections.map((section) => (
+        <div key={section} className="flex flex-col gap-1">
+          <p className="px-3 pb-1 text-[10px] font-semibold tracking-[0.2em] text-[var(--dg-text-faint)]/80 uppercase">
+            {section}
+          </p>
+          {items
+            .filter((item) => item.section === section)
+            .map((item) => {
+              const active = item.isActive
+                ? item.isActive(pathname ?? "")
+                : item.href
+                  ? pathname?.startsWith(item.href)
+                  : false;
+              return (
+                <NavRow
+                  key={item.key}
+                  item={item}
+                  active={active ?? false}
+                  onNavigate={onNavigate}
+                />
+              );
+            })}
+        </div>
+      ))}
     </nav>
   );
 }
@@ -112,6 +168,8 @@ function SidebarNavSkeleton() {
 }
 
 export function SidebarHelpCard() {
+  const openAction = useQuickActions((s) => s.open);
+
   return (
     <div className="relative mx-3 flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] p-4 backdrop-blur-md">
       <span
@@ -123,12 +181,13 @@ export function SidebarHelpCard() {
       <span className="relative z-10 text-center text-xs text-[var(--dg-text-muted)]">
         Besoin d&apos;un coup de main ?
       </span>
-      <a
-        href="tel:+261387631600"
-        className="relative z-10 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--dg-accent)]/40 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] px-3 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--dg-accent-glow)] transition-all hover:brightness-110"
+      <button
+        type="button"
+        onClick={() => openAction("contact")}
+        className="relative z-10 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--dg-accent)]/40 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] px-3 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--dg-accent-glow)] transition-all hover:brightness-110"
       >
         Obtenir de l&apos;aide
-      </a>
+      </button>
     </div>
   );
 }

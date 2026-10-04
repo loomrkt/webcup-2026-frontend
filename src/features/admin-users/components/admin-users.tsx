@@ -35,6 +35,8 @@ import {
 import type { RbacUser, RoleEntity, UserStatus } from "@/services/rbac/types";
 import { AccountDetailSheet } from "./account-detail-sheet";
 
+export { AccountDetailSheet } from "./account-detail-sheet";
+
 type Feedback = { kind: "success" | "error"; message: string } | null;
 
 function getInitials(email?: string | null) {
@@ -142,7 +144,7 @@ function AccessDenied() {
   );
 }
 
-export default function AdminUsersPage() {
+export function AdminUsers() {
   const { isLoading: rolesLoading, hasRole } = useRoleGuard();
   const [users, setUsers] = useState<RbacUser[]>([]);
   const [roles, setRoles] = useState<RoleEntity[]>([]);
@@ -213,18 +215,7 @@ export default function AdminUsersPage() {
   if (!hasRole(ROLES.ADMIN)) return <AccessDenied />;
 
   return (
-    <div className="flex flex-col gap-4 p-6">
-      <header>
-        <p className="dg-eyebrow">Haut Conseil · Administration</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--dg-text)]">
-          Gestion des utilisateurs
-        </h1>
-        <p className="mt-1 text-sm text-[var(--dg-text-muted)]">
-          Consultez les comptes de Terra Nova et attribuez des rôles aux
-          habitants et aux agents.
-        </p>
-      </header>
-
+    <div className="flex flex-col gap-4">
       {feedback && (
         <div
           role="status"

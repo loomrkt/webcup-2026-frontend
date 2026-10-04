@@ -1,13 +1,11 @@
 import type { ComponentType } from "react";
 import {
   Accessibility,
-  Activity,
   BookOpen,
   Building2,
   CalendarDays,
   ChartNoAxesCombined,
   ConciergeBell,
-  Database,
   Inbox,
   LayoutGrid,
   Lightbulb,
@@ -17,6 +15,7 @@ import {
   Newspaper,
   ScrollText,
   ShieldCheck,
+  Sparkles,
   ThumbsUp,
   TramFront,
   TriangleAlert,
@@ -27,13 +26,23 @@ import {
 } from "lucide-react";
 import { ADMIN_ROLES, ROLES } from "@/guards/roles";
 
-export type NavSection = "Accueil" | "Participation" | "Services & aide" | "Réglages" | "Administration";
+export type NavSection =
+  | "Accueil"
+  | "Découvrir"
+  | "Mes démarches"
+  | "Participation"
+  | "Mon compte"
+  | "Espace agent"
+  | "Administration";
 
 export type NavItem = {
   key: string;
   label: string;
-  href: string;
   icon: ComponentType<{ className?: string }>;
+  /** Rendu en bouton ouvrant une modale d'action rapide. */
+  action?: "report" | "contact";
+  /** Lien de navigation classique (quand ce n'est pas une action). */
+  href?: string;
   badge?: number;
   /** Clé de traduction UI (repli sur `label`). */
   tKey?: string;
@@ -43,11 +52,12 @@ export type NavItem = {
   roles?: string[];
   /** Permissions requises (toutes) pour voir l'item. */
   permissions?: string[];
-  // Item is always visible when omitted.
-  hasAccess?: (access: boolean) => boolean;
   /** Matcher personnalisé de l'état actif (défaut : pathname commence par href). */
   isActive?: (pathname: string) => boolean;
 };
+
+const startsWith = (...prefixes: string[]) => (pathname: string) =>
+  prefixes.some((prefix) => pathname.startsWith(prefix));
 
 export const navItems: NavItem[] = [
   {
@@ -58,13 +68,17 @@ export const navItems: NavItem[] = [
     tKey: "nav.dashboard",
     section: "Accueil",
   },
+
+  // ─────────────────────────── Citoyen · Découvrir ───────────────────────────
   {
     key: "services",
     label: "Services",
     href: "/services",
     icon: ConciergeBell,
     tKey: "nav.services",
+    section: "Découvrir",
     roles: [ROLES.CITIZEN],
+    isActive: startsWith("/services", "/glossary"),
   },
   {
     key: "news",
@@ -72,6 +86,7 @@ export const navItems: NavItem[] = [
     href: "/news",
     icon: Newspaper,
     tKey: "nav.news",
+    section: "Découvrir",
     roles: [ROLES.CITIZEN],
   },
   {
@@ -80,6 +95,7 @@ export const navItems: NavItem[] = [
     href: "/mobility",
     icon: TramFront,
     tKey: "nav.mobility",
+    section: "Découvrir",
     roles: [ROLES.CITIZEN],
   },
   {
@@ -88,14 +104,18 @@ export const navItems: NavItem[] = [
     href: "/places",
     icon: Map,
     tKey: "nav.places",
+    section: "Découvrir",
     roles: [ROLES.CITIZEN],
   },
+
+  // ─────────────────────────── Citoyen · Mes démarches ───────────────────────────
   {
     key: "citizen-requests",
     label: "Mes demandes",
     href: "/requests",
     icon: Inbox,
     tKey: "nav.requests",
+    section: "Mes démarches",
     roles: [ROLES.CITIZEN],
     isActive: (pathname) =>
       pathname === "/requests" ||
@@ -103,155 +123,114 @@ export const navItems: NavItem[] = [
         !pathname.startsWith("/requests/new")),
   },
   {
-    key: "request-report",
-    label: "Signaler un problème",
-    href: "/requests/new",
-    icon: TriangleAlert,
-    tKey: "nav.report",
-    roles: [ROLES.CITIZEN],
-  },
-  {
-    key: "contact",
-    label: "Contact",
-    href: "/contact",
-    icon: MessageCircle,
-    tKey: "nav.contact",
-    roles: [ROLES.CITIZEN],
-  },
-  {
-    key: "profile",
-    label: "Mon profil",
-    href: "/profile",
-    icon: UserRound,
-    tKey: "nav.profile",
-    roles: [ROLES.CITIZEN],
-  },
-  {
-    key: "agent-requests",
-    label: "Demandes",
-    href: "/agent/requests",
-    icon: Inbox,
-    tKey: "nav.agent.requests",
-    roles: [ROLES.AGENT_MUNICIPAL],
-  },
-  {
-    key: "agent-dashboard",
-    label: "Statistiques",
-    href: "/agent/dashboard",
-    icon: ChartNoAxesCombined,
-    tKey: "nav.agent.dashboard",
-    roles: [ROLES.AGENT_MUNICIPAL],
-  },
-  {
-    key: "agent-communications",
-    label: "Alertes & annonces",
-    href: "/agent/communications",
-    icon: Megaphone,
-    tKey: "nav.agent.communications",
-    roles: [ROLES.AGENT_MUNICIPAL],
-  },
-  {
-    key: "agent-audit",
-    label: "Journal d'audit",
-    href: "/agent/audit",
-    icon: ScrollText,
-    tKey: "nav.agent.audit",
-    roles: [ROLES.AGENT_MUNICIPAL],
-    permissions: ["audit.read"],
-  },
-  {
     key: "appointments",
     label: "Rendez-vous",
     href: "/appointments",
     icon: CalendarDays,
     tKey: "nav.appointments",
+    section: "Mes démarches",
   },
+
+  // ─────────────────────────── Citoyen · Participation ───────────────────────────
   {
-    key: "security",
-    label: "Sécurité",
-    href: "/security",
-    icon: ShieldCheck,
-    tKey: "nav.security",
-  },
-  {
-    key: "ideas",
-    label: "Idées",
-    href: "/ideas",
-    icon: Lightbulb,
+    key: "participation",
+    label: "Participation",
+    href: "/participation",
+    icon: Sparkles,
+    tKey: "nav.participation",
     section: "Participation",
+    isActive: startsWith(
+      "/participation",
+      "/ideas",
+      "/projects",
+      "/consultations",
+      "/support",
+    ),
+  },
+
+  // ─────────────────────────── Citoyen · Mon compte ───────────────────────────
+  {
+    key: "account",
+    label: "Mon compte",
+    href: "/account",
+    icon: UserRound,
+    tKey: "nav.account",
+    section: "Mon compte",
+    isActive: startsWith(
+      "/account",
+      "/profile",
+      "/security",
+      "/settings/accessibility",
+      "/data-concerns",
+      "/data-export",
+    ),
+  },
+
+  // ─────────────────────────── Actions rapides (modales) ───────────────────────────
+  {
+    key: "request-report",
+    label: "Signaler un problème",
+    action: "report",
+    icon: TriangleAlert,
+    tKey: "nav.report",
+    section: "Mes démarches",
+    roles: [ROLES.CITIZEN],
   },
   {
-    key: "projects",
-    label: "Projets",
-    href: "/projects",
-    icon: Building2,
-    section: "Participation",
+    key: "contact",
+    label: "Contact",
+    action: "contact",
+    icon: MessageCircle,
+    tKey: "nav.contact",
+    section: "Découvrir",
+    roles: [ROLES.CITIZEN],
   },
+
+  // ─────────────────────────── Agent municipal ───────────────────────────
   {
-    key: "consultations",
-    label: "Consultations",
-    href: "/consultations",
-    icon: Vote,
-    section: "Participation",
+    key: "agent",
+    label: "Espace agent",
+    href: "/agent",
+    icon: ChartNoAxesCombined,
+    tKey: "nav.agent",
+    section: "Espace agent",
+    roles: [ROLES.AGENT_MUNICIPAL],
+    isActive: startsWith("/agent"),
   },
+
+  // ─────────────────────────── Administration ───────────────────────────
   {
-    key: "support",
-    label: "Soutenir",
-    href: "/support",
-    icon: ThumbsUp,
-    section: "Participation",
-  },
-  {
-    key: "services-status",
-    label: "État des services",
-    href: "/services/status",
-    icon: Activity,
-    section: "Services & aide",
-  },
-  {
-    key: "glossary",
-    label: "Glossaire",
-    href: "/glossary",
-    icon: BookOpen,
-    section: "Services & aide",
-  },
-  {
-    key: "accessibility",
-    label: "Accessibilité",
-    href: "/settings/accessibility",
-    icon: Accessibility,
-    section: "Réglages",
-  },
-  {
-    key: "data-concerns",
-    label: "Données & vie privée",
-    href: "/data-concerns",
-    icon: Database,
-    section: "Réglages",
-  },
-  {
-    key: "users",
-    label: "Gestion des utilisateurs",
-    href: "/admin/users",
+    key: "admin",
+    label: "Administration",
+    href: "/admin",
     icon: UsersIcon,
-    tKey: "nav.users",
+    tKey: "nav.admin",
     section: "Administration",
     roles: [...ADMIN_ROLES],
-  },
-  {
-    key: "admin-services",
-    label: "Services",
-    href: "/admin/services",
-    icon: Wrench,
-    section: "Administration",
-    roles: [...ADMIN_ROLES],
+    isActive: startsWith("/admin"),
   },
 ];
 
 export const NAV_SECTIONS: NavSection[] = [
   "Accueil",
+  "Découvrir",
+  "Mes démarches",
   "Participation",
-  "Services & aide",
-  "Réglages",
+  "Mon compte",
+  "Espace agent",
   "Administration",
 ];
+
+/** Icônes de référence pour les onglets de hubs (import partagé). */
+export const HUB_ICONS = {
+  Accessibility,
+  BookOpen,
+  Building2,
+  Lightbulb,
+  Megaphone,
+  ScrollText,
+  ShieldCheck,
+  ThumbsUp,
+  Vote,
+  Wrench,
+} as const;

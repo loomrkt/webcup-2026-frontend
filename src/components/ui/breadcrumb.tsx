@@ -7,17 +7,17 @@ import { cn } from "@/lib/utils";
 
 const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Tableau de bord",
-  services: "Services",
+  services: "Services & aide",
   news: "Actualités",
   announcements: "Annonces",
   requests: "Mes demandes",
   new: "Signaler un problème",
-  profile: "Mon profil",
+  account: "Mon compte",
   contact: "Contact",
   appointments: "Rendez-vous",
-  security: "Sécurité",
   mobility: "Transports",
   places: "Lieux & urgences",
+  participation: "Participation",
   agent: "Espace agent",
   admin: "Administration",
 };

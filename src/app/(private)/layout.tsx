@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RoleGuardProvider } from "@/guards/role-guard";
 import { ActiveAlertBanners } from "@/widgets/active-alert-banners";
 import { NotificationCenter } from "@/widgets/notification-center";
+import { QuickActionsProvider } from "@/features/quick-actions";
 import { redirect } from "next/navigation";
 
 export default async function Layout({
@@ -105,6 +106,9 @@ export default async function Layout({
 
       {/* ───────── Centre de notifications (cloche) ───────── */}
       <NotificationCenter />
+
+      {/* ───────── Modales d'action rapide (Signaler, Contact) ───────── */}
+      <QuickActionsProvider />
     </div>
   );
 }

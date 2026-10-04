@@ -85,7 +85,8 @@ function SectionCard({
   );
 }
 
-export default function SecurityPage() {
+/** Panneau de sécurité du compte, embarquable dans un hub à onglets. */
+export function SecurityPanel() {
   const queryClient = useQueryClient();
   const { data: me, isLoading } = useQuery({
     queryKey: ["me"],
@@ -94,8 +95,7 @@ export default function SecurityPage() {
 
   if (isLoading || !me) {
     return (
-      <div className="flex flex-col gap-4 p-6">
-        <Skeleton className="h-7 w-56 bg-white/10" />
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-40 rounded-2xl bg-white/10" />
         <Skeleton className="h-40 rounded-2xl bg-white/10" />
         <Skeleton className="h-48 rounded-2xl bg-white/10" />
@@ -106,18 +106,7 @@ export default function SecurityPage() {
   const refresh = () => void queryClient.invalidateQueries({ queryKey: ["me"] });
 
   return (
-    <div className="flex flex-col gap-4 p-6">
-      <header>
-        <p className="dg-eyebrow">Compte · Sécurité</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--dg-text)]">
-          Sécurité du compte
-        </h1>
-        <p className="mt-1 text-sm text-[var(--dg-text-muted)]">
-          Gérez l&apos;authentification à deux facteurs et la suppression de
-          votre compte.
-        </p>
-      </header>
-
+    <div className="flex flex-col gap-4">
       <SectionCard
         title="Authentification par application (TOTP)"
         icon={<Smartphone className="h-4 w-4 text-[var(--dg-accent-bright)]" />}

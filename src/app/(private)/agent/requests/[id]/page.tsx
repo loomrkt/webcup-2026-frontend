@@ -83,7 +83,7 @@ export default function AgentRequestDetailPage() {
     <div className="flex flex-col gap-4 p-6">
       <div className="flex items-center gap-2 text-sm">
         <Link
-          href="/agent/requests"
+          href="/agent?tab=requests"
           className="inline-flex items-center gap-1.5 text-[var(--dg-text-muted)] transition-colors hover:text-[var(--dg-accent-bright)]"
         >
           <ArrowLeft className="h-4 w-4" />

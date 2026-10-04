@@ -53,7 +53,7 @@ export function ProfileWelcome() {
             />
           </div>
           <Link
-            href="/profile"
+            href="/account?tab=profile"
             className="text-xs font-medium text-[var(--dg-accent-bright)] transition-colors hover:underline"
           >
             Compléter mon profil
