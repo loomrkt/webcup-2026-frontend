@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+import { AuthProvider } from "@/providers/session-provider";
+import QueryProvider from "@/providers/query-provider";
+import { AccessibilityProvider } from "@/features/accessibility/accessibility-provider";
+import { SkipLink } from "@/components/common/skip-link";
+import { FocusOnNavigation } from "@/components/common/focus-on-navigation";
+import { PageTransitionProvider } from "@/components/pageTransitions/PageTransitionProvider";
+import LoadingWrapper from "@/components/loaders/LoadingWrapper";
+import Cursor from "@/components/cursor";
+import { TooltipProvider } from "@/components/ui/tooltip"
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -9,17 +21,34 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Loomrkt - application",
-  description: "Loomrkt - application",
+  title: "Terra Nova - application",
+  description: "Plateforme numérique de la ville de Terra Nova",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${poppins.variable} h-full antialiased font-sans`}
+      className={cn("h-full", "antialiased", poppins.variable, "font-sans", geist.variable)}
     >
-      <body className={`${poppins.className} min-h-full flex flex-col`}>{children}</body>
+      <body className={`${poppins.className} min-h-full flex flex-col`}>
+        <SkipLink />
+        <AuthProvider>
+          <QueryProvider>
+            <AccessibilityProvider>
+              <PageTransitionProvider>
+                <LoadingWrapper>
+                  <TooltipProvider>
+                    <Cursor />
+                    <FocusOnNavigation />
+                    {children}
+                  </TooltipProvider>
+                </LoadingWrapper>
+              </PageTransitionProvider>
+            </AccessibilityProvider>
+          </QueryProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
