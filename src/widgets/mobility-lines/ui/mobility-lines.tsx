@@ -5,18 +5,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { HubTabs, type HubTab } from "@/components/ui/hub-tabs";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MobilityLine } from "@/entities/mobility";
 import { useMobilityLinesQuery } from "@/entities/mobility";
 import { cn } from "@/lib/utils";
 
-const DAY_OPTIONS = [
-  { value: "today", label: "Aujourd'hui" },
-  { value: "weekday", label: "Semaine" },
-  { value: "saturday", label: "Samedi" },
-  { value: "sunday", label: "Dimanche" },
-] as const;
+const DAY_OPTIONS: HubTab[] = [
+  { key: "today", label: "Aujourd'hui" },
+  { key: "weekday", label: "Semaine" },
+  { key: "saturday", label: "Samedi" },
+  { key: "sunday", label: "Dimanche" },
+];
 
 const inputClassName =
   "h-12 w-full rounded-xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] pl-11 pr-4 text-sm text-[var(--dg-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur transition-all outline-none placeholder:text-[var(--dg-text-faint)] hover:border-[var(--dg-border-strong)] focus:border-[var(--dg-accent)]/70 focus:ring-4 focus:ring-[var(--dg-accent)]/15";
@@ -135,23 +136,12 @@ export function MobilityLines() {
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Jour des horaires">
-        {DAY_OPTIONS.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => setDay(option.value)}
-            className={cn(
-              "inline-flex cursor-pointer items-center rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-              day === option.value
-                ? "bg-[var(--dg-accent)]/15 text-[var(--dg-accent-bright)] border border-[var(--dg-accent)]/40"
-                : "text-[var(--dg-text-muted)] border border-transparent hover:text-white",
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      <HubTabs
+        tabs={DAY_OPTIONS}
+        active={day}
+        onChange={(key) => setDay(key)}
+        aria-label="Jour des horaires"
+      />
 
       <section aria-label="Lignes de transport">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--dg-text)]">

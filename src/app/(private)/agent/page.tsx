@@ -25,12 +25,15 @@ import {
   PageSkeleton as AgentPageSkeleton,
 } from "@/widgets/agent-dashboard";
 import { AgentLockedAccounts } from "@/widgets/agent-locked-accounts";
+import { AgentRequestExport } from "@/widgets/agent-request-export";
+import { AgentSecurityEvents } from "@/widgets/agent-security-events";
 
 const TABS = [
   { key: "dashboard", label: "Tableau de bord", icon: ChartNoAxesCombined },
   { key: "requests", label: "Demandes", icon: Inbox },
   { key: "communications", label: "Alertes & annonces", icon: Megaphone },
   { key: "audit", label: "Journal d'audit", icon: ScrollText },
+  { key: "security", label: "Sécurité", icon: Shield },
 ];
 
 function AccessDenied({ message }: { message?: string }) {
@@ -64,6 +67,11 @@ export default function AgentHubPage() {
       <AccessDenied message="Cette section est réservée aux agents disposant des droits d'audit du Haut Conseil de Terra Nova." />
     );
   }
+  if (active === "security" && !hasPermission("security.read")) {
+    return (
+      <AccessDenied message="Cette section est réservée aux agents disposant des droits de sécurité du Haut Conseil de Terra Nova." />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 p-6">
@@ -95,6 +103,7 @@ export default function AgentHubPage() {
             <RequestFilters />
           </HudPanel>
           <AgentRequestList />
+          <AgentRequestExport />
         </div>
       ) : null}
 
@@ -135,6 +144,12 @@ export default function AgentHubPage() {
             <AuditFilters />
           </HudPanel>
           <AuditList />
+        </div>
+      ) : null}
+
+      {active === "security" ? (
+        <div className="flex flex-col gap-4">
+          <AgentSecurityEvents />
         </div>
       ) : null}
     </div>

@@ -1,10 +1,12 @@
 "use client";
 
-import { Inbox, Shield } from "lucide-react";
+import { Inbox, Shield, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { HudPanel } from "@/components/ui/hud-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RequestFilters } from "@/features/request-filters";
+import { useQuickActions } from "@/features/quick-actions/store";
 import { ROLES } from "@/guards/roles";
 import { useRoleGuard } from "@/guards/role-guard";
 import { CitizenRequestList } from "@/widgets/citizen-request-list";
@@ -39,6 +41,7 @@ function AccessDenied() {
 
 export default function MyRequestsPage() {
   const { isLoading, hasRole } = useRoleGuard();
+  const openAction = useQuickActions((s) => s.open);
 
   if (isLoading) return <PageSkeleton />;
   if (!hasRole(ROLES.CITIZEN)) return <AccessDenied />;
@@ -49,6 +52,15 @@ export default function MyRequestsPage() {
         eyebrow="Citoyen · Suivi"
         title="Mes demandes"
         description="Retrouvez l'ensemble de vos signalements et démarches, ainsi que leur état d'avancement."
+        actions={
+          <Button
+            onClick={() => openAction("report")}
+            className="dg-btn-accent h-10 w-fit cursor-pointer"
+          >
+            <TriangleAlert className="h-4 w-4" />
+            Signaler un problème
+          </Button>
+        }
       />
 
       <HudPanel edge className="flex flex-col gap-4 p-4">

@@ -420,44 +420,17 @@ img, a {
   user-drag: none;
 }
 
-/* ---------- HUD · géométrie (source unique) ----------
-   Seuls le cadre principal (hud-frame) et la bannière mobile (hud-banner)
-   conservent un clip-path. Tout le reste utilise des coins arrondis. */
+/* ---------- HUD · géométrie (source unique) ---------- */
 :root {
-  --hud-c: 36px; /* grand rayon — cadre principal */
-  --hud-s: 12px; /* petit rayon — cadre principal */
-  --hud-p: 18px; /* rayon moyen — panneaux / cartes */
-  --hud-ps: 7px;
   --hud-x: 10px; /* rayon fin — boutons, tuiles, rangées */
   --hud-xs: 6px; /* micro rayon — badges / chips */
 }
 
 @media (max-width: 1023px) {
   :root {
-    --hud-c: 22px;
-    --hud-s: 8px;
-    --hud-p: 12px;
-    --hud-ps: 5px;
     --hud-x: 8px;
     --hud-xs: 5px;
   }
-}
-
-.hud-frame {
-  clip-path: polygon(
-    var(--hud-c) 0,
-    calc(100% - var(--hud-s)) 0,
-    100% var(--hud-s),
-    100% calc(100% - var(--hud-c)),
-    calc(100% - var(--hud-c)) 100%,
-    var(--hud-s) 100%,
-    0 calc(100% - var(--hud-s)),
-    0 var(--hud-c)
-  );
-}
-
-.hud-panel {
-  border-radius: var(--hud-p);
 }
 
 .hud-cut,
@@ -469,16 +442,12 @@ img, a {
   border-radius: var(--hud-xs);
 }
 
-.hud-banner {
-  clip-path: polygon(
-    0 0,
-    calc(100% - 72px) 0,
-    calc(100% - 58px) 14px,
-    100% 14px,
-    100% 100%,
-    20px 100%,
-    0 calc(100% - 20px)
-  );
+/* Sélecteurs natifs : fond noir, texte blanc */
+select,
+select option {
+  background-color: #000;
+  color: #fff;
+  color-scheme: dark;
 }
 
 /* Bouton d'accent partagé (dégradé + lueur) */

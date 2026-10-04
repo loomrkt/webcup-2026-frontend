@@ -15,6 +15,12 @@ export const downloadRequestsCsv = async (): Promise<Blob> =>
     .get<Blob>("/requests/me/summary/download", { responseType: "blob" })
     .then((response) => response.data);
 
+/** F88 — récapitulatif CSV de toutes les demandes (agents). */
+export const downloadAllRequestsCsv = async (): Promise<Blob> =>
+  axiosCredential
+    .get<Blob>("/requests/export/download", { responseType: "blob" })
+    .then((response) => response.data);
+
 export function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

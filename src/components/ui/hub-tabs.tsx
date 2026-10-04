@@ -35,16 +35,18 @@ export function HubTabs({
   active,
   onChange,
   className,
+  ariaLabel = "Sections",
 }: {
   tabs: HubTab[];
   active: string;
   onChange: (key: string) => void;
   className?: string;
+  ariaLabel?: string;
 }) {
   return (
     <div
       role="tablist"
-      aria-label="Sections"
+      aria-label={ariaLabel}
       className={cn(
         "flex flex-wrap items-center gap-1 rounded-xl border border-[var(--dg-border)] bg-[var(--dg-bg-card)] p-1",
         className,

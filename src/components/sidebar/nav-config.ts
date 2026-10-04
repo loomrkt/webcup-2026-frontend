@@ -11,14 +11,12 @@ import {
   Lightbulb,
   Map,
   Megaphone,
-  MessageCircle,
   Newspaper,
   ScrollText,
   ShieldCheck,
   Sparkles,
   ThumbsUp,
   TramFront,
-  TriangleAlert,
   UserRound,
   UsersIcon,
   Vote,
@@ -39,9 +37,7 @@ export type NavItem = {
   key: string;
   label: string;
   icon: ComponentType<{ className?: string }>;
-  /** Rendu en bouton ouvrant une modale d'action rapide. */
-  action?: "report" | "contact";
-  /** Lien de navigation classique (quand ce n'est pas une action). */
+  /** Lien de navigation classique. */
   href?: string;
   badge?: number;
   /** Clé de traduction UI (repli sur `label`). */
@@ -117,10 +113,7 @@ export const navItems: NavItem[] = [
     tKey: "nav.requests",
     section: "Mes démarches",
     roles: [ROLES.CITIZEN],
-    isActive: (pathname) =>
-      pathname === "/requests" ||
-      (pathname.startsWith("/requests/") &&
-        !pathname.startsWith("/requests/new")),
+    isActive: startsWith("/requests"),
   },
   {
     key: "appointments",
@@ -164,26 +157,6 @@ export const navItems: NavItem[] = [
       "/data-concerns",
       "/data-export",
     ),
-  },
-
-  // ─────────────────────────── Actions rapides (modales) ───────────────────────────
-  {
-    key: "request-report",
-    label: "Signaler un problème",
-    action: "report",
-    icon: TriangleAlert,
-    tKey: "nav.report",
-    section: "Mes démarches",
-    roles: [ROLES.CITIZEN],
-  },
-  {
-    key: "contact",
-    label: "Contact",
-    action: "contact",
-    icon: MessageCircle,
-    tKey: "nav.contact",
-    section: "Découvrir",
-    roles: [ROLES.CITIZEN],
   },
 
   // ─────────────────────────── Agent municipal ───────────────────────────

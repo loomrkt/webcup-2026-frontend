@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { HudPanel } from "@/components/ui/hud-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRequestFiltersStore } from "@/features/request-filters";
+import { useQuickActions } from "@/features/quick-actions/store";
 import type { Request } from "@/entities/request";
 import { useMyRequestsQuery } from "@/entities/request";
 import { formatDate } from "@/helpers/format";
@@ -73,6 +74,7 @@ export function CitizenRequestList() {
   const page = useRequestFiltersStore((s) => s.page);
   const limit = useRequestFiltersStore((s) => s.limit);
   const setPage = useRequestFiltersStore((s) => s.setPage);
+  const openAction = useQuickActions((s) => s.open);
 
   const { data, isLoading, isError, refetch, isFetching } = useMyRequestsQuery({
     status: status || undefined,
@@ -120,7 +122,7 @@ export function CitizenRequestList() {
           actions={
             !status && !priority ? (
               <Button
-                render={<Link href="/requests/new" />}
+                onClick={() => openAction("report")}
                 className="dg-btn-accent h-11 w-fit cursor-pointer"
               >
                 Signaler un problème

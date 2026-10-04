@@ -230,7 +230,7 @@ export function AdminServices() {
 
   const handleAvailabilityChanged = () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-services"] });
-    void queryClient.invalidateQueries({ queryKey: ["services-status"] });
+    void queryClient.invalidateQueries({ queryKey: ["services", "status"] });
     void queryClient.invalidateQueries({ queryKey: ["services"] });
     setEditing(null);
   };

@@ -17,15 +17,15 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="relative z-10 flex h-full flex-col">
       <SidebarBrand />
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-6 py-2">
           <SidebarNav onNavigate={onNavigate} />
         </div>
       </ScrollArea>
       <div className="flex flex-col gap-3 pb-3">
-        <div className="mx-3">
+        {/* <div className="mx-3">
           <LanguageSelector />
-        </div>
+        </div> */}
         <SidebarHelpCard />
         <SidebarFooter />
       </div>

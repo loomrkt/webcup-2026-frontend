@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { HubTabs, type HubTab } from "@/components/ui/hub-tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Announcement, AnnouncementPriority } from "@/entities/announcement";
 import {
@@ -49,33 +50,10 @@ const ANNOUNCEMENT_PRIORITY_META: Record<
 
 type Tab = "news" | "announcements";
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-        active
-          ? "bg-[var(--dg-accent)]/15 text-[var(--dg-accent-bright)] border border-[var(--dg-accent)]/40"
-          : "text-[var(--dg-text-muted)] border border-transparent hover:text-white",
-      )}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
+const NEWS_TABS: HubTab[] = [
+  { key: "news", label: "Publications", icon: Newspaper },
+  { key: "announcements", label: "Annonces publiques", icon: Siren },
+];
 
 function PublicationCard({ publication }: { publication: Publication }) {
   return (
@@ -162,20 +140,11 @@ export function NewsFeed() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center gap-2">
-        <TabButton
-          active={tab === "news"}
-          onClick={() => setTab("news")}
-          icon={<Newspaper className="h-4 w-4" />}
-          label="Publications"
-        />
-        <TabButton
-          active={tab === "announcements"}
-          onClick={() => setTab("announcements")}
-          icon={<Siren className="h-4 w-4" />}
-          label="Annonces publiques"
-        />
-      </div>
+      <HubTabs
+        tabs={NEWS_TABS}
+        active={tab}
+        onChange={(key) => setTab(key as Tab)}
+      />
 
       {tab === "news" ? (
         publicationsLoading ? (

@@ -1,16 +1,18 @@
 "use client";
 
-import { Shield, UsersIcon, Wrench } from "lucide-react";
+import { Shield, UsersIcon, Wrench, PlusCircle } from "lucide-react";
 import { HudPanel } from "@/components/ui/hud-panel";
 import { HubHeader, HubTabs, useHubTab } from "@/components/ui/hub-tabs";
 import { ROLES } from "@/guards/roles";
 import { useRoleGuard } from "@/guards/role-guard";
+import { AdminContent } from "@/features/admin-content";
 import { AdminServices } from "@/features/admin-services/components/admin-services";
 import { AdminUsers } from "@/features/admin-users/components/admin-users";
 
 const TABS = [
   { key: "users", label: "Utilisateurs", icon: UsersIcon },
   { key: "services", label: "Services", icon: Wrench },
+  { key: "content", label: "Contenus", icon: PlusCircle },
 ];
 
 function AccessDenied() {
@@ -50,6 +52,7 @@ export default function AdminHubPage() {
 
       {active === "users" ? <AdminUsers /> : null}
       {active === "services" ? <AdminServices /> : null}
+      {active === "content" ? <AdminContent /> : null}
     </div>
   );
 }

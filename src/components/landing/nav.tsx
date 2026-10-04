@@ -13,7 +13,7 @@ export default function Nav() {
   return (
     <header className="absolute inset-x-0 top-0 z-100">
       <div className="dg-container flex items-center justify-between py-6">
-        <Link href="#" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5">
           <Logo />
           
         </Link>

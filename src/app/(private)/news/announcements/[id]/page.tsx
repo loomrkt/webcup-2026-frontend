@@ -8,6 +8,7 @@ import { HudPanel } from "@/components/ui/hud-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AnnouncementPriority } from "@/entities/announcement";
 import { useAnnouncementQuery } from "@/entities/announcement";
+import { useQuickActions } from "@/features/quick-actions/store";
 import { formatDateTime } from "@/helpers/format";
 import { ROLES } from "@/guards/roles";
 import { useRoleGuard } from "@/guards/role-guard";
@@ -86,6 +87,7 @@ export default function AnnouncementDetailPage() {
   const id = params.id;
   const { isLoading: guardLoading, hasRole } = useRoleGuard();
   const { data: announcement, isLoading, isError } = useAnnouncementQuery(id);
+  const openAction = useQuickActions((s) => s.open);
 
   if (guardLoading) return <PageSkeleton />;
   if (!hasRole(ROLES.CITIZEN)) return <AccessDenied />;
@@ -144,12 +146,22 @@ export default function AnnouncementDetailPage() {
           </p>
 
           {announcement.ctaLabel ? (
-            <a
-              href={announcement.ctaUrl || "/contact"}
-              className="flex w-fit items-center justify-center gap-2 rounded-xl border border-[var(--dg-accent)]/40 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--dg-accent-glow)] transition-all hover:brightness-110"
-            >
-              {announcement.ctaLabel}
-            </a>
+            announcement.ctaUrl ? (
+              <a
+                href={announcement.ctaUrl}
+                className="flex w-fit items-center justify-center gap-2 rounded-xl border border-[var(--dg-accent)]/40 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--dg-accent-glow)] transition-all hover:brightness-110"
+              >
+                {announcement.ctaLabel}
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAction("contact")}
+                className="flex w-fit cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--dg-accent)]/40 bg-gradient-to-b from-[var(--dg-accent-bright)] to-[var(--dg-accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--dg-accent-glow)] transition-all hover:brightness-110"
+              >
+                {announcement.ctaLabel}
+              </button>
+            )
           ) : null}
         </HudPanel>
       </article>

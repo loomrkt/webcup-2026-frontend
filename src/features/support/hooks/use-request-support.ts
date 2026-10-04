@@ -29,6 +29,9 @@ export function useToggleSupport(requestId: string) {
       supporting ? supportRequest(requestId) : withdrawSupport(requestId),
     onSuccess: (status) => {
       queryClient.setQueryData(supportQueryKey(requestId), status);
+      void queryClient.invalidateQueries({
+        queryKey: supportQueryKey(requestId),
+      });
     },
   });
 }

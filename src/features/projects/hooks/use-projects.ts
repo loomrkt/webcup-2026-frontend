@@ -11,8 +11,9 @@ import {
 import type { SubmitFeedbackInput } from "@/services/civic/project-types";
 import { useEcoStore } from "@/stores/eco-store";
 
-export const projectKey = (id: string) => ["project", id];
+export const projectKey = (id: string) => ["projects", "detail", id];
 export const feedbackSummaryKey = (id: string) => ["feedback-summary", id];
+export const myFeedbackKey = (id: string) => ["my-feedback", id];
 
 /** F67 — liste publique (mode light en éco). */
 export function useProjects() {
@@ -47,7 +48,7 @@ export function useFeedbackSummary(id: string) {
 /** F66 — mon avis actuel (null si je n'ai pas encore répondu). */
 export function useMyFeedback(id: string) {
   return useQuery({
-    queryKey: ["my-feedback", id],
+    queryKey: myFeedbackKey(id),
     queryFn: () => fetchMyFeedback(id),
     enabled: !!id,
     staleTime: 60_000,
@@ -62,7 +63,8 @@ export function useSubmitFeedback(id: string) {
       submitProjectFeedback(id, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: feedbackSummaryKey(id) });
-      void queryClient.invalidateQueries({ queryKey: ["my-feedback", id] });
+      void queryClient.invalidateQueries({ queryKey: myFeedbackKey(id) });
+      void queryClient.invalidateQueries({ queryKey: projectKey(id) });
     },
   });
 }

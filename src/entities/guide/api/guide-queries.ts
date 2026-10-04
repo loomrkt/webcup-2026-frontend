@@ -10,12 +10,13 @@ import {
 
 export const guideQueryKeys = {
   all: ["guides"] as const,
+  catalog: ["guides", "catalog"] as const,
   mine: ["guides", "me"] as const,
 };
 
 export function useGuidesQuery() {
   return useQuery({
-    queryKey: guideQueryKeys.all,
+    queryKey: guideQueryKeys.catalog,
     queryFn: fetchGuides,
   });
 }

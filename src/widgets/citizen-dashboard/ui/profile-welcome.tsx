@@ -4,10 +4,12 @@ import { FilePlus2, UserRound } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfileCompletionQuery, useProfileQuery } from "@/entities/profile";
+import { useQuickActions } from "@/features/quick-actions/store";
 
 export function ProfileWelcome() {
   const { data: profile, isLoading } = useProfileQuery();
   const { data: completion } = useProfileCompletionQuery();
+  const openAction = useQuickActions((s) => s.open);
 
   if (isLoading || !profile) {
     return (
@@ -43,13 +45,14 @@ export function ProfileWelcome() {
           </div>
         </div>
 
-        <Link
-          href="/requests/new"
-          className="dg-btn-accent inline-flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-transform duration-300 hover:scale-[1.02]"
+        <button
+          type="button"
+          onClick={() => openAction("report")}
+          className="dg-btn-accent inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-transform duration-300 hover:scale-[1.02]"
         >
           <FilePlus2 className="h-4 w-4" />
           Nouvelle démarche
-        </Link>
+        </button>
       </div>
 
       {completion && !completion.complete ? (

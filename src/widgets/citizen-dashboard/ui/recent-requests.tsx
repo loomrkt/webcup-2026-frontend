@@ -5,11 +5,13 @@ import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyRequestsQuery } from "@/entities/request";
+import { useQuickActions } from "@/features/quick-actions/store";
 import { formatDate } from "@/helpers/format";
 import { StatusBadge } from "@/widgets/agent-request-list";
 
 export function RecentRequests() {
   const { data, isLoading } = useMyRequestsQuery({ limit: 5 });
+  const openAction = useQuickActions((s) => s.open);
 
   if (isLoading || !data) {
     return (
@@ -28,13 +30,14 @@ export function RecentRequests() {
         title="Aucune démarche pour le moment"
         description="Lancez votre première démarche ou signalez un problème en quelques clics."
         actions={
-          <Link
-            href="/requests/new"
-            className="dg-btn-accent inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+          <button
+            type="button"
+            onClick={() => openAction("report")}
+            className="dg-btn-accent inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
           >
             Commencer une démarche
             <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          </button>
         }
         className="py-8"
       />

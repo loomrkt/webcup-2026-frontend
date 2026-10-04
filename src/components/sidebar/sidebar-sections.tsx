@@ -15,13 +15,10 @@ export function SidebarBrand() {
   return (
     <div className="flex h-20 items-center gap-2.5 px-5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.png" alt="" className="h-8 w-auto drop-shadow-[0_0_12px_var(--dg-accent-glow)]" />
+      <img src="/logo.png" alt="" className="h-8! w-auto drop-shadow-[0_0_12px_var(--dg-accent-glow)]" />
       <div className="flex flex-col">
         <span className="bg-gradient-to-r from-white via-white to-[var(--dg-accent-bright)] bg-clip-text text-lg font-bold tracking-tight text-transparent">
           TERRA NOVA
-        </span>
-        <span className="text-[10px] font-medium tracking-[0.3em] text-[var(--dg-text-faint)] uppercase">
-          Plateforme citoyenne
         </span>
       </div>
     </div>
@@ -38,7 +35,6 @@ function NavRow({
   onNavigate?: () => void;
 }) {
   const t = useLanguageStore((s) => s.t);
-  const openAction = useQuickActions((s) => s.open);
   const label = item.tKey ? t(item.tKey, item.label) : item.label;
 
   const className = cn(
@@ -81,23 +77,6 @@ function NavRow({
       ) : null}
     </>
   );
-
-  // Items "action" → ouvrent une modale (Signaler un problème, Contact).
-  if (item.action) {
-    const action = item.action;
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          openAction(action);
-          onNavigate?.();
-        }}
-        className={cn(className, "cursor-pointer")}
-      >
-        {inner}
-      </button>
-    );
-  }
 
   return (
     <Link href={item.href ?? "#"} onClick={onNavigate} className={className}>
@@ -177,7 +156,7 @@ export function SidebarHelpCard() {
         className="absolute -top-10 left-1/2 h-24 w-40 -translate-x-1/2 rounded-full bg-[var(--dg-accent)] opacity-25 blur-2xl"
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo.png" alt="" className="relative z-10 h-10 w-auto opacity-80" />
+      <img src="/logo.png" alt="" className="relative z-10 h-10! w-auto opacity-80" />
       <span className="relative z-10 text-center text-xs text-[var(--dg-text-muted)]">
         Besoin d&apos;un coup de main ?
       </span>

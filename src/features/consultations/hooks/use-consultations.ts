@@ -10,7 +10,7 @@ import {
 import type { RespondInput } from "@/services/civic/consultation-types";
 import { useEcoStore } from "@/stores/eco-store";
 
-export const consultationKey = (id: string) => ["consultation", id];
+export const consultationKey = (id: string) => ["consultations", "detail", id];
 export const resultsKey = (id: string) => ["consultation-results", id];
 
 /** F65 — consultations ouvertes (mode light en éco). */
