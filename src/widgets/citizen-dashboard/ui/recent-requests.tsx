@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Inbox } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMyRequestsQuery } from "@/entities/request";
 import { formatDate } from "@/helpers/format";
@@ -20,7 +21,25 @@ export function RecentRequests() {
     );
   }
 
-  if (data.items.length === 0) return null;
+  if (data.items.length === 0) {
+    return (
+      <EmptyState
+        icon={<Inbox className="h-5 w-5" />}
+        title="Aucune démarche pour le moment"
+        description="Lancez votre première démarche ou signalez un problème en quelques clics."
+        actions={
+          <Link
+            href="/requests/new"
+            className="dg-btn-accent inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+          >
+            Commencer une démarche
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        }
+        className="py-8"
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2.5">

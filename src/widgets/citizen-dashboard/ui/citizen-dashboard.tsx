@@ -9,12 +9,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { HudPanel } from "@/components/ui/hud-panel";
+import { OnboardingGuides } from "@/widgets/onboarding-guides";
 import { AlertsPreview } from "./alerts-preview";
+import { DashboardStats } from "./dashboard-stats";
 import { NotificationsPreview } from "./notifications-preview";
 import { ProfileWelcome } from "./profile-welcome";
 import { RecentRequests } from "./recent-requests";
 import { ServiceOverview } from "./service-overview";
-import { OnboardingGuides } from "@/widgets/onboarding-guides";
 
 function SectionLink({ href, label }: { href: string; label: string }) {
   return (
@@ -52,33 +53,37 @@ function SectionTitle({
 
 export function CitizenDashboard() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <ProfileWelcome />
+
+      <DashboardStats />
 
       <OnboardingGuides />
 
-      <HudPanel edge className="flex flex-col gap-4 p-4">
-        <SectionTitle
-          icon={<Boxes className="h-4 w-4 text-[var(--dg-accent-bright)]" />}
-          href="/services"
-        >
-          Services en avant
-        </SectionTitle>
-        <ServiceOverview />
-      </HudPanel>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <HudPanel edge className="flex flex-col gap-4 p-4">
+          <SectionTitle
+            icon={<Boxes className="h-4 w-4 text-[var(--dg-accent-bright)]" />}
+            href="/services"
+          >
+            Services en avant
+          </SectionTitle>
+          <ServiceOverview />
+        </HudPanel>
 
-      <HudPanel edge className="flex flex-col gap-4 p-4">
-        <SectionTitle
-          icon={<Inbox className="h-4 w-4 text-[var(--dg-accent-bright)]" />}
-          href="/requests"
-        >
-          Mes démarches
-        </SectionTitle>
-        <RecentRequests />
-      </HudPanel>
+        <HudPanel edge className="flex flex-col gap-4 p-4">
+          <SectionTitle
+            icon={<Inbox className="h-4 w-4 text-[var(--dg-accent-bright)]" />}
+            href="/requests"
+          >
+            Mes démarches
+          </SectionTitle>
+          <RecentRequests />
+        </HudPanel>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <HudPanel edge className="flex flex-col gap-4 p-4">
+        <HudPanel edge tone="danger" className="flex flex-col gap-4 p-4">
           <SectionTitle
             icon={<ShieldAlert className="h-4 w-4 text-[var(--dg-danger)]" />}
             href="/news"

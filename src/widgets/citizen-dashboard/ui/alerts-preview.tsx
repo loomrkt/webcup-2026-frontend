@@ -1,6 +1,8 @@
 "use client";
 
-import { Info, ShieldAlert, TriangleAlert } from "lucide-react";
+import { ArrowRight, Info, ShieldAlert, ShieldCheck, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AlertCriticality } from "@/entities/alert";
 import { useActiveAlertsQuery } from "@/entities/alert";
@@ -43,7 +45,25 @@ export function AlertsPreview() {
     );
   }
 
-  if (alerts.length === 0) return null;
+  if (alerts.length === 0) {
+    return (
+      <EmptyState
+        icon={<ShieldCheck className="h-5 w-5 text-[var(--dg-success)]" />}
+        title="Aucune alerte active"
+        description="La ville est calme pour le moment. Suivez les actualités pour ne rien manquer."
+        actions={
+          <Link
+            href="/news"
+            className="dg-btn-accent inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+          >
+            Voir les actualités
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        }
+        className="py-8"
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2.5">

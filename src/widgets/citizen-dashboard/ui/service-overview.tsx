@@ -2,6 +2,7 @@
 
 import { ArrowRight, Boxes } from "lucide-react";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ServiceStatusBadge } from "@/components/ui/service-status-badge";
 import { useFeaturedServicesQuery } from "@/entities/service";
@@ -23,7 +24,25 @@ export function ServiceOverview() {
 
   const items = services.slice(0, 6);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        icon={<Boxes className="h-5 w-5" />}
+        title="Aucun service en avant pour le moment"
+        description="Parcourez le catalogue pour découvrir tous les services proposés par la ville."
+        actions={
+          <Link
+            href="/services"
+            className="dg-btn-accent inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+          >
+            Voir tous les services
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        }
+        className="py-8"
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2.5">

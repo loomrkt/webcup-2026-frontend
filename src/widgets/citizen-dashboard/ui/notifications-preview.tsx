@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNotificationsQuery } from "@/entities/notification";
 import { formatDate } from "@/helpers/format";
@@ -19,7 +20,16 @@ export function NotificationsPreview() {
     );
   }
 
-  if (data.items.length === 0) return null;
+  if (data.items.length === 0) {
+    return (
+      <EmptyState
+        icon={<Bell className="h-5 w-5" />}
+        title="Aucune notification"
+        description="Les nouvelles notifications apparaîtront ici dès qu'elles arrivent."
+        className="py-8"
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2.5">
