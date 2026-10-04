@@ -1,22 +1,33 @@
 import type { ComponentType } from "react";
 import {
+  Accessibility,
+  Activity,
+  BookOpen,
+  Building2,
   CalendarDays,
   ChartNoAxesCombined,
   ConciergeBell,
+  Database,
   Inbox,
   LayoutGrid,
+  Lightbulb,
   Map,
   Megaphone,
   MessageCircle,
   Newspaper,
   ScrollText,
   ShieldCheck,
+  ThumbsUp,
   TramFront,
   TriangleAlert,
   UserRound,
   UsersIcon,
+  Vote,
+  Wrench,
 } from "lucide-react";
 import { ADMIN_ROLES, ROLES } from "@/guards/roles";
+
+export type NavSection = "Accueil" | "Participation" | "Services & aide" | "Réglages" | "Administration";
 
 export type NavItem = {
   key: string;
@@ -26,6 +37,8 @@ export type NavItem = {
   badge?: number;
   /** Clé de traduction UI (repli sur `label`). */
   tKey?: string;
+  /** Section de navigation (regroupement visuel dans la sidebar). */
+  section?: NavSection;
   /** Rôles autorisés à voir l'item. Vide = visible pour tout utilisateur connecté. */
   roles?: string[];
   /** Permissions requises (toutes) pour voir l'item. */
@@ -43,6 +56,7 @@ export const navItems: NavItem[] = [
     href: "/dashboard",
     icon: LayoutGrid,
     tKey: "nav.dashboard",
+    section: "Accueil",
   },
   {
     key: "services",
@@ -160,11 +174,84 @@ export const navItems: NavItem[] = [
     tKey: "nav.security",
   },
   {
+    key: "ideas",
+    label: "Idées",
+    href: "/ideas",
+    icon: Lightbulb,
+    section: "Participation",
+  },
+  {
+    key: "projects",
+    label: "Projets",
+    href: "/projects",
+    icon: Building2,
+    section: "Participation",
+  },
+  {
+    key: "consultations",
+    label: "Consultations",
+    href: "/consultations",
+    icon: Vote,
+    section: "Participation",
+  },
+  {
+    key: "support",
+    label: "Soutenir",
+    href: "/support",
+    icon: ThumbsUp,
+    section: "Participation",
+  },
+  {
+    key: "services-status",
+    label: "État des services",
+    href: "/services/status",
+    icon: Activity,
+    section: "Services & aide",
+  },
+  {
+    key: "glossary",
+    label: "Glossaire",
+    href: "/glossary",
+    icon: BookOpen,
+    section: "Services & aide",
+  },
+  {
+    key: "accessibility",
+    label: "Accessibilité",
+    href: "/settings/accessibility",
+    icon: Accessibility,
+    section: "Réglages",
+  },
+  {
+    key: "data-concerns",
+    label: "Données & vie privée",
+    href: "/data-concerns",
+    icon: Database,
+    section: "Réglages",
+  },
+  {
     key: "users",
     label: "Gestion des utilisateurs",
     href: "/admin/users",
     icon: UsersIcon,
     tKey: "nav.users",
+    section: "Administration",
     roles: [...ADMIN_ROLES],
   },
+  {
+    key: "admin-services",
+    label: "Services",
+    href: "/admin/services",
+    icon: Wrench,
+    section: "Administration",
+    roles: [...ADMIN_ROLES],
+  },
+];
+
+export const NAV_SECTIONS: NavSection[] = [
+  "Accueil",
+  "Participation",
+  "Services & aide",
+  "Réglages",
+  "Administration",
 ];

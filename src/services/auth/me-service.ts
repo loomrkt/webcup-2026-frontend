@@ -1,4 +1,5 @@
 import { axiosCredential } from "@/lib/axios";
+import type { AccessibilityPreferences } from "@/interfaces/accessibility";
 import type { AuthApiEnvelope } from "./types";
 
 export interface MeRole {
@@ -14,6 +15,8 @@ export interface MeData {
   mfaEmailActive: boolean;
   roles: MeRole[];
   permissions: string[];
+  language?: string;
+  preferences?: Partial<AccessibilityPreferences>;
 }
 
 export const getMe = async (): Promise<MeData> => {

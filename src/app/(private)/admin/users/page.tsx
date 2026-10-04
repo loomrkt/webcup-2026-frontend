@@ -704,6 +704,10 @@ function CreateUserSheet({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="habitant@terranova.city"
               autoComplete="email"
+              aria-invalid={formError ? true : undefined}
+              aria-describedby={
+                formError ? "create-user-form-error" : undefined
+              }
             />
           </label>
 
@@ -717,6 +721,10 @@ function CreateUserSheet({
               onChange={(e) => setPassword(e.target.value)}
               placeholder="8 caractères minimum"
               autoComplete="new-password"
+              aria-invalid={formError ? true : undefined}
+              aria-describedby={
+                formError ? "create-user-form-error" : undefined
+              }
             />
           </label>
 
@@ -743,7 +751,13 @@ function CreateUserSheet({
           </div>
 
           {formError && (
-            <p className="text-xs text-[var(--dg-danger)]">{formError}</p>
+            <p
+              id="create-user-form-error"
+              role="alert"
+              className="text-xs text-[var(--dg-danger)]"
+            >
+              {formError}
+            </p>
           )}
         </div>
 
